@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="TasksEngine\TaskProcess.fs" />
+    <Compile Include="TasksEngine\TaskCreation.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Apis" Version="1.70.0" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.70.0" />
+    <PackageReference Include="Google.Apis.Core" Version="1.70.0" />
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.69.0.3783" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Database.Connection\Database.Connection.fsproj" />
+    <ProjectReference Include="..\SystemDataContracts\SystemDataContracts.fsproj" />
+    <ProjectReference Include="..\VersionSystem\VersionSystem.fsproj" />
+  </ItemGroup>
+
+</Project>

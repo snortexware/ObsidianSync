@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup> 
+    <Compile Include="CoreEngine\IVersionCore.fs" />
+    <Compile Include="CoreEngine\VersionCore.fs" /> 
+    <Compile Include="CoreEngine\VersionCoreRegister.fs" /> 
+    <Compile Include="FirstFoldersCreation.fs" />
+    <Compile Include="FirstSystemTablesCreation.fs" /> 
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Database.Connection\Database.Connection.fsproj" />
+  </ItemGroup>
+
+</Project>

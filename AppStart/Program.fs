@@ -1,0 +1,3 @@
+﻿open MainStartProcess
+
+main()

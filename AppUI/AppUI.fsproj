@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="UserInput.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\itsacounterbutinfsharp\TaskSystem.fsproj" />
+    <ProjectReference Include="..\SystemDataContracts\SystemDataContracts.fsproj" />
+    <ProjectReference Include="..\VersionSystem\VersionSystem.fsproj" />
+    <ProjectReference Include="..\Google.Api.MainProcess\Google.Api.MainProcess.fsproj" />
+    <ProjectReference Include="..\itsacounterbutinfsharp\SyncLogic.fsproj" />
+  </ItemGroup>
+
+</Project>
