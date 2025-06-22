@@ -15,7 +15,6 @@
     <ProjectReference Include="..\SystemDataContracts\SystemDataContracts.fsproj" />
     <ProjectReference Include="..\VersionSystem\VersionSystem.fsproj" />
     <ProjectReference Include="..\Google.Api.MainProcess\Google.Api.MainProcess.fsproj" />
-    <ProjectReference Include="..\itsacounterbutinfsharp\SyncLogic.fsproj" />
   </ItemGroup>
 
 </Project>

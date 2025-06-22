@@ -11,6 +11,7 @@ type Message() =
         do printfn message
 
 type UserInput() =
+    let mutable userProjectName = ""
     let timer = new Timer(60000.0);
     let mutable timeout = false;
     do
@@ -32,12 +33,11 @@ type UserInput() =
                     Console.Clear()
                     printf "Tempo esgotado, fechando aplicação..." 
                     Environment.Exit(0)
-
     do
         Console.Clear()
         printfn "Digite o nome do projeto:"
-
-    let mutable userProjectName = Console.ReadLine();
+        userProjectName <- Console.ReadLine();
+        Console.Clear()
 
     member this.UserProjetoName = userProjectName   
 

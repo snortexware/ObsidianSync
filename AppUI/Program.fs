@@ -1,8 +1,11 @@
 ﻿module MainStartProcess
-open SystemDataContracts
+
 open System
 open System.IO
+open System.Security.Cryptography
+open System.Collections.Concurrent
 open FileProcess
+open SystemDataContracts
 open UserInput
 open UserConnection
 open VersionSystem
@@ -13,7 +16,7 @@ open TaskCreation
 open TaskProcess
 
 [<Literal>]
-let defaultPath = @"C:\obsidian-sync"
+let localRoot = @"C:\obsidian-sync"
 
 let InitialTaskProcess (fileId: string) =
     let timeExecute = DateTime.UtcNow
@@ -23,70 +26,94 @@ let InitialTaskProcess (fileId: string) =
     dataContract.ExecuteTs <- timeExecute.ToString()
     dataContract
 
-let main () =
+let isInternalFile (name: string) =
+    name.Contains("sync.db") || name.Contains("sync.db-journal")
 
+let getFileHash (path: string) =
+    try
+        use fs = File.OpenRead(path)
+        use sha = SHA256.Create()
+        sha.ComputeHash(fs)
+    with _ -> [||]
+
+let main () =
     GlobalDbConnection.Start() |> ignore
 
     AutoRegister.autoRegisterAll()
     Registry.runAll()
 
-
     let appC = UserInput()
     let userApp = appC.UserProjetoName
 
     UserConnection.ApiConnection.Init(userApp)
-    let cc = UserConnection.ApiConnection.Instance
-    let drive = cc.Service
+    let drive = UserConnection.ApiConnection.Instance.Service
 
-    let defaultFolder = GetOrCreateDefaultFolder(drive)
+    let driveRoot = GetOrCreateRootFolder(drive)
 
-    let fileWatcher = new FileSystemWatcher(defaultPath)
-    fileWatcher.NotifyFilter <- NotifyFilters.FileName ||| NotifyFilters.LastWrite
-    fileWatcher.IncludeSubdirectories <- false
-    fileWatcher.EnableRaisingEvents <- true
-    fileWatcher.Filter <- "*.*"
+    DownloadAllFiles(drive, driveRoot, localRoot) |> Async.RunSynchronously
 
-    fileWatcher.Changed.Add(fun e ->
-        try
-         if e.Name.EndsWith(".db-journal") || e.Name.EndsWith("~") then
-            () 
-         else
-            let dataContract = InitialTaskProcess(e.Name)
-            let task = RegisterTask()
-            task.Data(dataContract)
-            task.Run()
+    let recentHashes = ConcurrentDictionary<string, byte[]>()
 
-            use tc = new TaskWrapper(e.Name)
-            let wasUpdated = UploadChangedFile(drive, e.FullPath, e.Name)
-            tc.Complete()
+    let watcher = new FileSystemWatcher(localRoot)
+    watcher.IncludeSubdirectories <- true
+    watcher.NotifyFilter <- NotifyFilters.FileName ||| NotifyFilters.LastWrite
+    watcher.Filter <- "*.*"
+    watcher.EnableRaisingEvents <- true
 
-            if wasUpdated.IsSome then
-                printfn "Arquivo atualizado: %s" e.FullPath
-        with ex ->
-            printfn "Erro ao processar mudança no arquivo: %s\n%s" e.FullPath ex.Message
+    watcher.Changed.Add(fun e ->
+        if File.Exists(e.FullPath) && not (isInternalFile e.Name) then
+            let newHash = getFileHash e.FullPath
+            match recentHashes.TryGetValue(e.FullPath) with
+            | true, oldHash when oldHash = newHash -> ()
+            | _ ->
+                recentHashes.[e.FullPath] <- newHash
+                let dTo = InitialTaskProcess(e.Name)
+                let task = RegisterTask()
+                task.Data(dTo)
+                task.Run()
+                use tc = new TaskWrapper(e.Name)
+                UpdateFile(drive, e.FullPath, localRoot, driveRoot) |> ignore
+                tc.Complete()
+                printfn $"[MODIFICADO] {e.Name}"
     )
 
-    fileWatcher.Created.Add(fun e ->
-    if e.Name.EndsWith(".db-journal") || e.Name.EndsWith("~") then
-        () 
-    else    
-        try
-            let dataContract = InitialTaskProcess(e.Name)
+    watcher.Created.Add(fun e ->
+        if File.Exists(e.FullPath) && not (isInternalFile e.Name) then
+            let hash = getFileHash e.FullPath
+            recentHashes.[e.FullPath] <- hash
+            let dTo = InitialTaskProcess(e.Name)
             let task = RegisterTask()
-            task.Data(dataContract)
+            task.Data(dTo)
             task.Run()
-
             use tc = new TaskWrapper(e.Name)
-            let wasUpdated = UploadFile(drive, e.FullPath, defaultFolder)
+            UploadFile(drive, e.FullPath, localRoot, driveRoot) |> ignore
             tc.Complete()
-            printfn "📝 Arquivo atualizado: %s" e.FullPath
+            printfn $"[CRIADO] {e.Name}"
+    )
 
-        with ex ->
-            printfn "⚠️ Erro ao processar mudança no arquivo: %s\n%s" ex.Message ex.StackTrace )
+    watcher.Deleted.Add(fun e ->
+        if not (isInternalFile e.Name) then
+            let dTo = InitialTaskProcess(e.Name)
+            let task = RegisterTask()
+            task.Data(dTo)
+            task.Run()
+            use tc = new TaskWrapper(e.Name)
+            DeleteFile(drive, e.FullPath, localRoot, driveRoot) |> ignore
+            tc.Complete()
+            printfn $"[REMOVIDO] {e.Name}"
+    )
 
+    watcher.Renamed.Add(fun e ->
+        if not (isInternalFile e.Name) then
+            let dTo = InitialTaskProcess(e.Name)
+            let task = RegisterTask()
+            task.Data(dTo)
+            task.Run()
+            use tc = new TaskWrapper(e.Name)
+            RenameFile(drive, e.OldFullPath, e.FullPath, localRoot, driveRoot) |> ignore
+            tc.Complete()
+            printfn $"[RENOMEADO] {e.OldName} → {e.Name}"
+    )
+
+    printfn $"Monitorando alterações em: {localRoot}"
     System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite)
-
-
-
-
-

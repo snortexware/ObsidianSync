@@ -12,7 +12,7 @@ type FirstSystemTablesCreation() as this =
             let connection = GlobalDbConnection.Instance.Connection
             connection.Execute("""
             CREATE TABLE IF NOT EXISTS TASKS (
-            Id INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT NOT NULL, EXECUTETS TEXT NOT NULL, COMPLETED INTEGER DEFAULT 0, FILEID TEXTO NOT NULL
+            Id INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT NOT NULL, EXECUTETS TEXT NOT NULL, COMPLETED INTEGER DEFAULT 0, FILEID TEXTO NOT NULL, TASKTYPE INTEGER
                 )
             """) |> ignore
 

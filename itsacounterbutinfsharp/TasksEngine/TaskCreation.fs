@@ -20,11 +20,9 @@ type RegisterTask() =
 
             if isNull tasksExist then
                 let sql = """
-                    INSERT INTO TASKS (NAME, EXECUTETS, FILEID)
-                    VALUES (@Name, @ExecuteTs, @FileId)
+                    INSERT INTO TASKS (NAME, EXECUTETS, FILEID, TASKTYPE)
+                    VALUES (@Name, @ExecuteTs, @FileId, @TaskType)
                 """
                 connection.Execute(sql, taskData) |> ignore
-            else
-                printfn "Tarefa já existe."
         | None ->
             printfn "Nenhum dado fornecido. Use .Data(taskData) antes de chamar .Run()."
