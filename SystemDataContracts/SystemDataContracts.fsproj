@@ -7,6 +7,11 @@
 
   <ItemGroup>
     <Compile Include="TaskDataObject.fs" />
+    <Compile Include="EventsDataObject.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.69.0.3783" />
   </ItemGroup>
 
 </Project>

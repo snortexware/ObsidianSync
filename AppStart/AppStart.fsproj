@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AppUI\AppUI.fsproj" />
+    <ProjectReference Include="..\External.IO.Common\External.IO.Common.fsproj" />
   </ItemGroup>
 
 </Project>

@@ -25,6 +25,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AppStart", "AppStart\AppSta
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SystemDataContracts", "SystemDataContracts\SystemDataContracts.fsproj", "{E12ECF79-BD82-40BA-9FFF-500456304E42}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "External.IO.Common", "External.IO.Common\External.IO.Common.fsproj", "{AA439213-1D32-4BD0-934D-B3B098DAB18C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{E12ECF79-BD82-40BA-9FFF-500456304E42}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E12ECF79-BD82-40BA-9FFF-500456304E42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E12ECF79-BD82-40BA-9FFF-500456304E42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA439213-1D32-4BD0-934D-B3B098DAB18C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA439213-1D32-4BD0-934D-B3B098DAB18C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA439213-1D32-4BD0-934D-B3B098DAB18C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA439213-1D32-4BD0-934D-B3B098DAB18C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -71,6 +77,7 @@ Global
 		{5F4B182B-1045-482D-8F3A-DE788BB235AB} = {6464EE6D-8F2A-47D7-A88D-96EA99EB7985}
 		{F47938E4-FEB5-4D87-9B4A-9DF2F2141918} = {F0B11867-56DA-4FB5-B66B-DA2510C1C69A}
 		{E12ECF79-BD82-40BA-9FFF-500456304E42} = {3B4B3FDC-E080-4F88-9925-ACD46673C5E9}
+		{AA439213-1D32-4BD0-934D-B3B098DAB18C} = {6464EE6D-8F2A-47D7-A88D-96EA99EB7985}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8B25F4CC-2012-4F86-ADC2-039E5EAB6C98}

@@ -1,4 +1,5 @@
 ﻿module FileProcess
+let private timestamp = System.DateTime.UtcNow
 
 open Google.Apis.Drive.v3
 open Google.Apis.Drive.v3.Data
@@ -52,7 +53,6 @@ let UploadFile (service: DriveService, filePath: string, localRoot: string, driv
     req.Fields <- "id"
     let status = req.Upload()
     if status.Status <> Google.Apis.Upload.UploadStatus.Completed then failwithf "Erro upload: %A" status.Exception
-    printfn "✔️ Upload concluído: %s" filePath
     Some req.ResponseBody.Id
 
 let FileExists (service: DriveService, fileName: string, parentId: string) =
@@ -74,7 +74,6 @@ let UpdateFile (service: DriveService, filePath: string, localRoot: string, driv
         req.Fields <- "id"
         let status = req.Upload()
         if status.Status <> Google.Apis.Upload.UploadStatus.Completed then failwithf "Erro update: %A" status.Exception
-        printfn "✔️ Atualizado: %s" filePath
         Some req.ResponseBody.Id
     | None -> None
 
@@ -87,7 +86,6 @@ let DeleteFile (service: DriveService, filePath: string, localRoot: string, driv
     | Some id ->
         let req = service.Files.Delete(id)
         req.Execute() |> ignore
-        printfn "Deletado: %s" filePath
         Some id
     | None -> None
 
@@ -103,7 +101,6 @@ let RenameFile (service: DriveService, oldPath: string, newPath: string, localRo
         let req = service.Files.Update(meta, id)
         req.Fields <- "id"
         let file = req.Execute()
-        printfn "Renomeado: %s → %s" oldName newName
         Some file.Id
     | None -> None
 
@@ -121,11 +118,11 @@ let DownloadAllFiles (service: DriveService, driveRoot: string, localRoot: strin
                     Directory.CreateDirectory(localTarget) |> ignore
                     do! downloadFromFolder f.Id localTarget
                 else
-                    printfn "Baixando: %s" f.Name
+                    printfn $"[{timestamp}] BAIXANDO {f.Name}" 
                     use stream = new FileStream(localTarget, FileMode.Create, FileAccess.Write)
                     let getReq = service.Files.Get(f.Id)
                     let! _ = getReq.DownloadAsync(stream) |> Async.AwaitTask
-                    printfn "Salvo: %s" f.Name
+                    printfn $"[{timestamp}] SALVO {f.Name}" 
         }
         do! downloadFromFolder driveRoot localRoot
     }
