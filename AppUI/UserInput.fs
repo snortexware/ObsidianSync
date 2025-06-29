@@ -9,9 +9,10 @@ type Message() =
         e colocalo na sua pasta de downloads. Após isso basta digitar o nome do projeto na próxima instrução. 
         Para confirmar que entendeu digite 'S'"
         do printfn message
-
 type UserInput() =
     let mutable userProjectName = ""
+    let mutable userPassword = ""
+    
     let timer = new Timer(60000.0);
     let mutable timeout = false;
     do
@@ -38,8 +39,17 @@ type UserInput() =
         printfn "Digite o nome do projeto:"
         userProjectName <- Console.ReadLine();
         Console.Clear()
+        
+    do
+        Console.Clear()
+        printf "(Obs: as senhas não são salvas no banco de dados, em caso de esquecer terá que refazer o proceso de login):"
+        printfn $"Digite uma senha de segurança:{Environment.NewLine}"
+        userPassword <- Console.ReadLine();
+        Console.Clear()
 
-    member this.UserProjetoName = userProjectName   
+    member this.UserProjetoName = userProjectName
+    member this.UserPassword = userPassword  
+    
 
 
 

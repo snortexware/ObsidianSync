@@ -107,22 +107,24 @@ let RenameFile (service: DriveService, oldPath: string, newPath: string, localRo
 let DownloadAllFiles (service: DriveService, driveRoot: string, localRoot: string) =
     async {
         let rec downloadFromFolder folderId localPath = async {
+
             let req = service.Files.List()
             req.Q <- $"'{folderId}' in parents and trashed = false"
             req.Fields <- "files(id, name, mimeType)"
             let! result = req.ExecuteAsync() |> Async.AwaitTask
 
             for f in result.Files do
-                let localTarget = Path.Combine(localPath, f.Name)
-                if f.MimeType = "application/vnd.google-apps.folder" then
-                    Directory.CreateDirectory(localTarget) |> ignore
-                    do! downloadFromFolder f.Id localTarget
-                else
-                    printfn $"[{timestamp}] BAIXANDO {f.Name}" 
-                    use stream = new FileStream(localTarget, FileMode.Create, FileAccess.Write)
-                    let getReq = service.Files.Get(f.Id)
-                    let! _ = getReq.DownloadAsync(stream) |> Async.AwaitTask
-                    printfn $"[{timestamp}] SALVO {f.Name}" 
+                if not(File.Exists(Path.Combine(localRoot, f.Name))) then
+                    let localTarget = Path.Combine(localPath, f.Name)
+                    if f.MimeType = "application/vnd.google-apps.folder" then
+                        Directory.CreateDirectory(localTarget) |> ignore
+                        do! downloadFromFolder f.Id localTarget
+                    else
+                     printfn $"[{timestamp}] BAIXANDO {f.Name}" 
+                     use stream = new FileStream(localTarget, FileMode.Create, FileAccess.Write)
+                     let getReq = service.Files.Get(f.Id)
+                     let! _ = getReq.DownloadAsync(stream) |> Async.AwaitTask
+                     printfn $"[{timestamp}] SALVO {f.Name}" 
         }
         do! downloadFromFolder driveRoot localRoot
     }

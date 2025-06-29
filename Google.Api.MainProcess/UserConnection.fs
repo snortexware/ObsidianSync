@@ -7,6 +7,7 @@ open Google.Apis.Util.Store
 open System
 open System.IO
 open System.Threading
+open Google.Api.MainProcess.TokenContext
 
 type ApiConnection (appName: string) =
     let scopes = [| DriveService.Scope.Drive |]
@@ -20,7 +21,7 @@ type ApiConnection (appName: string) =
                             scopes,
                             "user",
                             CancellationToken.None,
-                            FileDataStore("token.json", true)
+                            DbContextToken() :> IDataStore
                                 ) |> Async.AwaitTask
                             } |> Async.RunSynchronously
 

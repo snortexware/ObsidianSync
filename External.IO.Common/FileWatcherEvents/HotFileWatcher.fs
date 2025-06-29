@@ -25,4 +25,7 @@ type public HotWatcher() =
         
         printfn $"Monitorando alterações em: {_localRoot}"
 
+        System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite)
+
+
     static member val Instance = lazy (HotWatcher()) with get

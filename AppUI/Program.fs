@@ -30,4 +30,3 @@ let main () =
     UserConnection.ApiConnection.Init(userApp)
     HotWatcher.Instance.Value.Watch()
 
-    System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite)
