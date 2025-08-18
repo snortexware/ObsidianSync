@@ -1,5 +1,4 @@
 module MainEvents
-
 open System.Collections.Concurrent
 open System.Security.Cryptography
 open External.IO.Common.FileWatcherEvents
@@ -22,7 +21,7 @@ let private timestamp = System.DateTime.UtcNow
 type MainEventsHandler() =
      do
         DownloadAllFiles(_drive, _driveRoot, _localRoot)  |> Async.RunSynchronously
-        
+    
      interface IMainEventsHandler with
          member this.ChangedEventHandler(e: FileSystemEventArgs) =
                 let task = PrepareTask(e.Name, e.FullPath)
@@ -62,7 +61,6 @@ type MainEventsHandler() =
          member this.RenamedEventHandler(e: RenamedEventArgs) =
                 let task = PrepareTask(e.Name, e.FullPath)
                 if not (isInternalFile e.Name) && task then
-                     let dTo = InitialTaskProcess(e.Name)
                      use tc = new TaskWrapper(e.Name)
                      RenameFile(_drive, e.OldFullPath, e.FullPath, _localRoot, _driveRoot) |> ignore
                      tc.Complete()

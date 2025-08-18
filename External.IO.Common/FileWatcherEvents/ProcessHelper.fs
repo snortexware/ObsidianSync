@@ -5,7 +5,8 @@ open System.IO
 open System.Security.Cryptography
 open SystemDataContracts
 open TaskCreation
-    
+open Utils.NotifyHandler
+
 let isInternalFile (name: string) =
         name.Contains("sync.db") || name.Contains("sync.db-journal")
 
@@ -26,7 +27,16 @@ let InitialTaskProcess (fileId: string) =
     
 let PrepareTask(name: string, path: string) =
             if File.Exists(path) && not (isInternalFile name) then
-                let dTo = InitialTaskProcess(name)
+                let dTo = InitialTaskProcess(name);
+
+                async {
+                        try
+                        printfn "Preparando tarefa"
+                        do! NotifyHandler.notifyHandler.NotifyClientsAsync(dTo) |> Async.AwaitTask
+                        with ex ->
+                        printfn "Error notifying clients: %A" ex
+                        } |> Async.StartImmediate
+
                 let task = RegisterTask()
                 task.Data(dTo)
                 task.Run()

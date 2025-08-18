@@ -2,7 +2,7 @@
 
 open VersionSystem
 
-module Registry =
+module RegistryCore =
     let private implementations = System.Collections.Generic.List<IVersionCore>()
 
     let register instance =

@@ -1,6 +1,6 @@
 ﻿namespace VersionCore.FirstSystemTablesCreation
 open VersionSystem
-open VersionCore.CoreEngine.Registry
+open VersionCore.CoreEngine.RegistryCore
 open Database.Connection
 open Dapper
 

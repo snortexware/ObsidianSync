@@ -1,6 +1,6 @@
 ﻿namespace VersionSystem.MainSyncFolder
 open VersionSystem
-open VersionCore.CoreEngine.Registry
+open VersionCore.CoreEngine.RegistryCore
 open System.IO
 
 type MainSyncFolder() as this =

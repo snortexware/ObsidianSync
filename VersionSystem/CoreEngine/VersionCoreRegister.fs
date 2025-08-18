@@ -2,7 +2,7 @@
 open System
 open System.Reflection
 open VersionSystem
-open VersionCore.CoreEngine.Registry
+open VersionCore.CoreEngine.RegistryCore
 
 module AutoRegister =
     let autoRegisterAll () =

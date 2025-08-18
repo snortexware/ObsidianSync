@@ -9,7 +9,6 @@
     <Compile Include="TokenStore.fs" />
     <Compile Include="UserConnection.fs" />
     <Compile Include="FileProcess.fs" />
-    <Compile Include="CryptoCore.fs" />
   </ItemGroup>
 
   <ItemGroup>
