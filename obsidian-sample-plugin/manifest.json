@@ -1,0 +1,11 @@
+{
+	"id": "g-cloud-sync",
+	"name": "Google cloud sync",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Maintain you vaults synced with the cloud.",
+	"author": "Obsidian",
+	"authorUrl": "https://obsidian.md",
+	"fundingUrl": "https://obsidian.md/pricing",
+	"isDesktopOnly": false
+}
