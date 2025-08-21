@@ -17,6 +17,7 @@ export default class MyPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
+
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('cloudy', 'Google cloud sync', (evt: MouseEvent) => {
 			new ModalMounted(this.app).open();
