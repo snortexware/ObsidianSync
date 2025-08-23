@@ -1,24 +1,37 @@
-const ConnectionStarter = (port = 5000) => {
-  return new Promise((resolve, reject) => {
-    try {
-      let path = `ws://localhost:${port}/ws`;
-      let wc = new WebSocket(path);
+let ws;
+const listeners = [];
 
-      wc.onopen = () => {
-        resolve(true);
-      };
+export const startWS = (port = 5000) => {
+  if (ws && ws.readyState === WebSocket.OPEN) return ws; 
 
-      wc.onerror = (err) => {
-        reject(new Error("WebSocket connection error: " + err.message));
-      };
+  ws = new WebSocket(`ws://localhost:${port}/ws`);
 
-      wc.onclose = () => {
-        reject(new Error("WebSocket closed unexpectedly"));
-      };
-    } catch (e) {
-      reject(new Error("Problem trying to connect: " + e.message));
-    }
-  });
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    listeners.forEach((cb) => cb(data));
+  };
+
+  ws.onclose = () => {
+    console.warn("WebSocket closed. Try reconnecting later.");
+  };
+
+  return ws;
 };
 
-export default ConnectionStarter;
+export const sendNewConfig = (configObj) => 
+  {
+    if(ws.readyState == ws.OPEN){
+      ws.send(configObj);
+    }
+    else{
+      throw new Error("WebSocket is closed!")
+    }
+}
+
+export const sign = (callback) => {
+  listeners.push(callback);
+  return () => {
+    const idx = listeners.indexOf(callback);
+    if (idx !== -1) listeners.splice(idx, 1);
+  };
+};
