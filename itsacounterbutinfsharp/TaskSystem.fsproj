@@ -19,7 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Database.Connection\Database.Connection.fsproj" />
     <ProjectReference Include="..\SystemDataContracts\SystemDataContracts.fsproj" />
-    <ProjectReference Include="..\VersionSystem\VersionSystem.fsproj" />
   </ItemGroup>
 
 </Project>
