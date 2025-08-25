@@ -11,10 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Database.Connection\Database.Connection.fsproj" />
     <ProjectReference Include="..\External.IO.Common\External.IO.Common.fsproj" />
     <ProjectReference Include="..\Google.Api.MainProcess\Google.Api.MainProcess.fsproj" />
-    <ProjectReference Include="..\itsacounterbutinfsharp\TaskSystem.fsproj" />
 
   </ItemGroup>
 

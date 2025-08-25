@@ -16,7 +16,7 @@ namespace G.Sync.VersionSystem.Default
         private readonly string _taskTableSql = @"CREATE TABLE IF NOT EXISTS TASKS (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
             NAME TEXT NOT NULL, EXECUTETS TEXT NOT NULL,
-            COMPLETED INTEGER DEFAULT 0, FILEID TEXTO NOT NULL,
+            STATUS INTEGER DEFAULT 0, FILEID TEXTO NOT NULL,
             TASKTYPE INTEGER";
 
         private readonly string _insertDefaultSettingsSql =

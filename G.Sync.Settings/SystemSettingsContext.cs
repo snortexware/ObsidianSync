@@ -40,7 +40,7 @@ namespace G.Sync.Settings
 
             if (string.IsNullOrEmpty(folder))
             {
-                cnn.Execute(_settingsUpdateFolderSql, new { port = DefaultPort });
+                cnn.Execute(_settingsUpdateFolderSql, new { folder = DefaultFolder});
                 return;
             }
 

@@ -14,7 +14,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Google.Api.MainProcess\Google.Api.MainProcess.fsproj" />
-      <ProjectReference Include="..\itsacounterbutinfsharp\TaskSystem.fsproj" />
       <ProjectReference Include="..\Utils\Utils.csproj" />
     </ItemGroup>
 
