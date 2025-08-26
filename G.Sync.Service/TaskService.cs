@@ -1,17 +1,24 @@
 ﻿
+using G.Sync.Entities;
 using G.Sync.Entities.Interfaces;
+using static G.Sync.Entities.TaskEntity;
 
-public class TaskService(ITaskRepository taskRepo)
+namespace G.Sync.Service
 {
-    private readonly ITaskRepository _taskRepo = taskRepo;
-
-    public void UpdateTaskStatus(int id, TaskStatus newStatus)
+    public class TaskService(ITaskRepository taskRepo)
     {
-        var task = _taskRepo.GetById(id);
-        if (task == null) throw new Exception("Task not found");
+        private readonly ITaskRepository _taskRepo = taskRepo;
 
-        task.Status = (int)newStatus;
+        public void UpdateTaskStatus(string id, TasksStatus newStatus)
+        {
+            var task = _taskRepo.GetById(id);
 
-        _taskRepo.Save(task);
+            if (task == null) throw new Exception("Task not found");
+
+            task.Status = (int)newStatus;
+
+            _taskRepo.Save(task);
+        }
     }
+
 }

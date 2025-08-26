@@ -57,7 +57,6 @@ namespace G.Sync.Repository
             conn.Execute(sql, entity ?? _entity);
         }
 
-        // Static helpers for querying
         public  T? Get(object id)
         {
             var type = typeof(T);

@@ -1,7 +1,8 @@
 ﻿using Database.Connection;
-using System.Numerics;
-using Dapper;
 using G.Sync.DataContracts;
+using G.Sync.Repository;
+using G.Sync.Service;
+using static G.Sync.Entities.TaskEntity;
 
 namespace G.Sync.TasksManagment
 {
@@ -11,9 +12,6 @@ namespace G.Sync.TasksManagment
 
         private bool _completed = false;
 
-        private const string _updateTaskStatusSql =
-            "UPDATE TASKS SET STATUS = @status WHERE FILEID = @ID AND (STATUS <> @status OR STATUS IS NULL)";
-
         public void Complete()
         {
             _completed = true;
@@ -21,22 +19,20 @@ namespace G.Sync.TasksManagment
 
         public void Dispose()
         {
-            var connection = GlobalDbConnection.Instance.Connection;
-            var parameters = new DynamicParameters();
-            parameters.Add("ID", _fileId);
+            var taskRepo = new TaskRepository();
+
+            var taskService = new TaskService(taskRepo);
 
             try
             {
                 if (_completed)
-                {
-                    parameters.Add("status", StatusType.completed);
-                    connection.Execute(_updateTaskStatusSql, parameters);
-                }
+                    taskService.UpdateTaskStatus(_fileId, TasksStatus.Completed);
+
             }
             catch (Exception ex)
             {
-                parameters.Add("status", StatusType.failed);
-                connection.Execute(_updateTaskStatusSql, parameters);
+                taskService.UpdateTaskStatus(_fileId, TasksStatus.Failed);
+
                 throw new Exception("Failed to update task status to completed.", ex);
             }
         }
