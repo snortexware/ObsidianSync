@@ -1,11 +1,10 @@
-﻿using Database.Connection;
-using G.Sync.DatabaseManagment;
-using System;
+﻿using G.Sync.DatabaseManagment;
+using G.Sync.Entities.Interfaces;
 using System.Data;
 
-namespace G.Sync.TasksManagment
+namespace G.Sync.Common
 {
-    public class TransactionContext : IDisposable
+    public class TransactionContext : ITransaction
     {
         private readonly IDbConnection _connection;
         private readonly IDbTransaction _transaction;
@@ -21,22 +20,12 @@ namespace G.Sync.TasksManagment
             _transaction = _connection.BeginTransaction();
         }
 
-        /// <summary>
-        /// Confirma a transação.
-        /// </summary>
         public void Complete()
         {
             _transaction.Commit();
             _committed = true;
         }
 
-        /// <summary>
-        /// Desfaz a transação.
-        /// </summary>
-        public void Rollback()
-        {
-            _transaction.Rollback();
-        }
         public void Dispose()
         {
             if (!_disposed)
@@ -45,11 +34,15 @@ namespace G.Sync.TasksManagment
                 {
                     _transaction.Rollback();
                 }
-
                 _transaction.Dispose();
-                _connection.Dispose();
+                _connection?.Dispose();
                 _disposed = true;
             }
+        }
+
+        public void Rollback()
+        {
+            _transaction.Rollback();
         }
     }
 }

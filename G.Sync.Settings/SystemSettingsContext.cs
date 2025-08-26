@@ -8,14 +8,6 @@ namespace G.Sync.Settings
     public static class SystemSettingsContext
     {
         #region Consts
-        
-        private readonly static string _settingsUpdateFolderSql =
-            @"UPDATE SETTINGS SET FOLDER = @folder";
-
-        private readonly static string _settingsTableSql = 
-            @"SELECT FOLDER FROM SETTINGS";
-
-        public readonly static string DefaultFolder = @"C:\obsidian-sync";
 
         #endregion
 
