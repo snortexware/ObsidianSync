@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 
 namespace G.Sync.Entities.Interfaces
 {
-    public interface IVersionRepository
+    public interface ITaskRepository
     {
-        Version Get();
-        void Save(Version version);
+        Task Create();
+        Task Get(int id);
+        Task Get(string where);
+        void Save();
     }
 }

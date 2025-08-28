@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace G.Sync.Service
 {
-    public class VersionService(IVersionRepository versionRepository)
+    public class TaskService(ITaskRepository versionRepository)
     {
-        private readonly IVersionRepository _versionRepository = versionRepository;
+        private readonly ITaskRepository _versionRepository = versionRepository;
 
 
 

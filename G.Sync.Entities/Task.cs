@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace G.Sync.Entities
 {
-    public class Version()
+    public partial class Task()
     {
     }
 }

@@ -14,7 +14,7 @@ namespace G.Sync.DatabaseManagment
 
         private DataBaseContext()
         {
-            var dbFolder = Path.GetDirectoryName(SettingsContext);
+            var dbFolder = Path.GetDirectoryName(dbPath);
 
             if (!Directory.Exists(dbFolder))
                 Directory.CreateDirectory(dbFolder);
