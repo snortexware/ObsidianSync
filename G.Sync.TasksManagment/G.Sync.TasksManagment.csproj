@@ -14,6 +14,8 @@
   <ItemGroup>
     <ProjectReference Include="..\G.Sync.DatabaseManagment\G.Sync.DatabaseManagment.csproj" />
     <ProjectReference Include="..\G.Sync.DataContracts\G.Sync.DataContracts.csproj" />
+    <ProjectReference Include="..\G.Sync.Entities\G.Sync.Entities.csproj" />
+    <ProjectReference Include="..\G.Sync.Repository\G.Sync.Repository.csproj" />
   </ItemGroup>
 
   <ItemGroup>

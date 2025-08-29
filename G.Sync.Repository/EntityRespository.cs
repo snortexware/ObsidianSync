@@ -34,6 +34,11 @@ namespace G.Sync.Repository
 
         public void Save()
         {
+            Save(null);
+        }
+
+        public void Save(T? entity)
+        {
             var type = typeof(T);
             var tableAttr = type.GetCustomAttribute<TableAttribute>();
             var table = tableAttr?.Name ?? type.Name;
@@ -49,11 +54,11 @@ namespace G.Sync.Repository
             var sql = $"INSERT INTO {table} ({columns}) VALUES ({parameters});";
 
             using var conn = DataBaseContext.Instance.GetConnection();
-            conn.Execute(sql, _entity);
+            conn.Execute(sql, entity ?? _entity);
         }
 
         // Static helpers for querying
-        public static T? Get(object id)
+        public  T? Get(object id)
         {
             var type = typeof(T);
             var tableAttr = type.GetCustomAttribute<TableAttribute>();
@@ -70,6 +75,12 @@ namespace G.Sync.Repository
 
             using var conn = DataBaseContext.Instance.GetConnection();
             return conn.QueryFirstOrDefault<T>(sql, new { Id = id });
+        }
+
+        public T? Get(string sql, DynamicParameters parameters)
+        {
+            using var conn = DataBaseContext.Instance.GetConnection();
+            return conn.QueryFirstOrDefault<T>(sql, parameters);
         }
 
         public static IEnumerable<T> GetMany()

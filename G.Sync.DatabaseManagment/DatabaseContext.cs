@@ -11,6 +11,7 @@ namespace G.Sync.DatabaseManagment
             new(() => new DataBaseContext());
 
         private readonly string _connectionString;
+        private const string dbPath = @"C:\obsidian-sync\sync.db";
 
         private DataBaseContext()
         {

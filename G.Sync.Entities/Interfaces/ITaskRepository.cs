@@ -9,9 +9,9 @@ namespace G.Sync.Entities.Interfaces
 {
     public interface ITaskRepository
     {
-        Task Create();
-        Task Get(int id);
-        Task Get(string where);
-        void Save();
+        void Create();
+        TaskEntity? GetById(int id);
+        TaskEntity? GetFirstOrDefault(string sql, object parameters);
+        void Save(TaskEntity entity);
     }
 }

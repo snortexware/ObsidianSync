@@ -1,5 +1,8 @@
 ﻿using Dapper;
 using G.Sync.DataContracts;
+using G.Sync.Entities;
+using G.Sync.Entities.Interfaces;
+using G.Sync.Repository;
 using G.Sync.Utils;
 using System;
 using System.Collections.Generic;
@@ -10,39 +13,31 @@ using System.Threading.Tasks;
 
 namespace G.Sync.TasksManagment
 {
-    public static class TaskCreation
+    public class TaskCreation(ITaskRepository taskRepo)
     {
-        public static void Run(TaskDto taskData)
+        private ITaskRepository TaskRepo { get; set; } = taskRepo;
+        private TaskEntity? _task;
+
+        public void Data(TaskEntity entity)
         {
-            if (taskData is null)
+            _task = entity;
+        }
+
+        public void CreateTask()
+        {
+            if (_task is null)
                 throw new Exception("The data of the task was not find, call Data() before calling .Run().");
 
-            using (var tc = new TransactionContext())
-            {
-                var cnn = tc.Connection;
+            var parameters = new DynamicParameters();
+            parameters.Add("ID", _task.FileId);
+            parameters.Add("completed", StatusType.completed);
 
-                var parameters = new DynamicParameters();
-                parameters.Add("ID", taskData.FileId);
-                parameters.Add("completed", StatusType.completed);
+            const string sqlTaskExist = "SELECT ID FROM TASKS WHERE FILEID = @ID AND STATUS <> @completed";
 
-                const string sqlTaskExist = "SELECT ID FROM TASKS WHERE FILEID = @ID AND STATUS <> @completed";
+            var taskExist = TaskRepo.GetFirstOrDefault(sqlTaskExist, parameters);
 
-                var tasksExist = cnn.Query<TaskDto>(sqlTaskExist, parameters).FirstOrDefault();
-
-                if (tasksExist is null)
-                {
-                    var sql = @"
-                    INSERT INTO TASKS (NAME, EXECUTETS, FILEID, TASKTYPE)
-                    VALUES (@Name, @ExecuteTs, @FileId, @TaskType)
-                ";
-
-                    cnn.Execute(sql, taskData);
-                }
-
-                tc.Complete();
-            }
-
-
+            if (taskExist is null)
+                taskRepo.Save(_task);
         }
 
     }
