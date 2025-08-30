@@ -12,14 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\G.Sync.DataContracts\G.Sync.DataContracts.csproj" />
-    <ProjectReference Include="..\G.Sync.Settings\G.Sync.Settings.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Database.Connection">
-      <HintPath>..\Database.Connection\obj\Release\net8.0\ref\Database.Connection.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\G.Sync.Repository\G.Sync.Repository.csproj" />
   </ItemGroup>
 
 </Project>

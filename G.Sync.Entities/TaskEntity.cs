@@ -8,7 +8,7 @@ namespace G.Sync.Entities
 {
     public partial class TaskEntity()
     {
-        public enum TaskStatus
+        public enum TasksStatus
         {
             Peding = 1,
             Completed = 2,

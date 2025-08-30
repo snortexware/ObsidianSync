@@ -5,8 +5,8 @@ namespace G.Sync.Service
 {
     public interface ISettingsRepository
     {
-        Settings Get();
-        void Save(Settings settings);
+        SettingsEntity Get();
+        void Save(SettingsEntity settings);
     }
 
     public class SettingsService(ISettingsRepository repo)

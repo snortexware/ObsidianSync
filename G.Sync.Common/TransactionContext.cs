@@ -1,6 +1,7 @@
 ﻿using G.Sync.DatabaseManagment;
 using G.Sync.Entities.Interfaces;
 using System.Data;
+using System.Data.Common;
 
 namespace G.Sync.Common
 {
