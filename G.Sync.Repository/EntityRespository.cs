@@ -37,6 +37,15 @@ namespace G.Sync.Repository
             }
         }
 
+        public void Execute(RawEntityCommand command)
+        {
+            using (var tc = new TransactionContext())
+            {
+                ExecuteInternal(command, tc);
+                tc.Complete();
+            }
+        }
+
         public T? Get(object id)
         {
             using (var tc = new TransactionContext())
@@ -44,6 +53,15 @@ namespace G.Sync.Repository
                 var result = GetInternal(id, tc);
                 tc.Complete();
                 return result;
+            }
+        }
+
+        public void Delete(Criteria criteria)
+        {
+            using (var tc = new TransactionContext())
+            {
+                DeleteInternal(criteria, tc);
+                tc.Complete();
             }
         }
 

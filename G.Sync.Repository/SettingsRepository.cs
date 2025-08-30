@@ -22,9 +22,6 @@ namespace G.Sync.Repository
 
             Save(settings);
         }
-              #region Consts
-
-        #endregion
         public void CreateSettingsTable() => CreateEntityTable(_createSettingsTableSql);
 
         public SettingsEntity? GetSettings() => Get(1);

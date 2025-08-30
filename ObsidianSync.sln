@@ -41,6 +41,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G.Sync.Service", "G.Sync.Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G.Sync.Common", "G.Sync.Common\G.Sync.Common.csproj", "{1FDD7726-CBCB-4CF7-B32A-C47E6DC8C5A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G.Sync.Google.Api", "G.Sync.Google.Api\G.Sync.Google.Api.csproj", "{C2B21FC3-3EAA-4004-9F69-1C6A761E440B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,6 +105,10 @@ Global
 		{1FDD7726-CBCB-4CF7-B32A-C47E6DC8C5A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1FDD7726-CBCB-4CF7-B32A-C47E6DC8C5A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1FDD7726-CBCB-4CF7-B32A-C47E6DC8C5A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2B21FC3-3EAA-4004-9F69-1C6A761E440B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2B21FC3-3EAA-4004-9F69-1C6A761E440B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2B21FC3-3EAA-4004-9F69-1C6A761E440B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2B21FC3-3EAA-4004-9F69-1C6A761E440B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -122,6 +128,7 @@ Global
 		{CBA84E33-56CB-4E1A-B22E-6F9BF1D7BF13} = {6464EE6D-8F2A-47D7-A88D-96EA99EB7985}
 		{81148277-4D3A-423B-8E8E-779E11C64B70} = {3B4B3FDC-E080-4F88-9925-ACD46673C5E9}
 		{1FDD7726-CBCB-4CF7-B32A-C47E6DC8C5A4} = {6464EE6D-8F2A-47D7-A88D-96EA99EB7985}
+		{C2B21FC3-3EAA-4004-9F69-1C6A761E440B} = {6464EE6D-8F2A-47D7-A88D-96EA99EB7985}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8B25F4CC-2012-4F86-ADC2-039E5EAB6C98}

@@ -43,7 +43,7 @@ namespace G.Sync.Repository
                 $"SELECT COUNT(1) FROM {table} WHERE Id = @Id;",
                 new { Id = props.FirstOrDefault(p => p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase))?.GetValue(entity ?? defaultEntity) });
 
-            if(registerExist <= 0)
+            if (registerExist <= 0)
             {
                 var sql = $"INSERT INTO {table} ({columns}) VALUES ({parameters});";
                 conn.Execute(sql, entity ?? defaultEntity);
@@ -57,6 +57,27 @@ namespace G.Sync.Repository
             }
         }
 
+        protected void ExecuteInternal(RawEntityCommand command, TransactionContext tc)
+        {
+            try
+            {
+                if (command == null)
+                    throw new ArgumentNullException(nameof(command));
+
+                if (string.IsNullOrEmpty(command.CommandText)) return;
+
+                var conn = tc.Connection;
+
+                if (command.Parameters != null && command.Parameters.ParameterNames.Any())
+                    conn.Execute(command.CommandText, command.Parameters);
+                else
+                    conn.Execute(command.CommandText);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error executing raw command", ex);
+            }
+        }
         protected T? GetInternal(object id, TransactionContext tc)
         {
             var type = typeof(T);
@@ -77,10 +98,13 @@ namespace G.Sync.Repository
             return conn.QueryFirstOrDefault<T>(sql, new { Id = id });
         }
 
-        protected T? GetInternal(string sql, DynamicParameters parameters, TransactionContext tc)
+        protected T? GetInternal(Criteria criteria, TransactionContext tc)
         {
+            if (criteria is null)
+                throw new ArgumentNullException(nameof(criteria));
+
             var conn = tc.Connection;
-            return conn.QueryFirstOrDefault<T>(sql, parameters);
+            return conn.QueryFirstOrDefault<T>(criteria.Where, criteria.Parameters);
         }
 
         protected void CreateEntityTableInternal(string sqlCommand, TransactionContext tc)
@@ -88,6 +112,28 @@ namespace G.Sync.Repository
             var conn = tc.Connection;
             conn.Execute(sqlCommand);
         }
+
+        protected void DeleteInternal(Criteria criteria, TransactionContext tc)
+        {
+            if (criteria == null)
+                throw new ArgumentNullException(nameof(criteria));
+
+            var type = typeof(T);
+            var tableAttr = type.GetCustomAttribute<TableAttribute>();
+            var table = tableAttr?.Name ?? type.Name;
+
+            var validCriteria = string.IsNullOrEmpty(criteria.Where) && criteria?.Parameters?.ParameterNames.Count() > 0;
+
+            var sql = $"DELETE FROM {table}" + (validCriteria ? $"WHERE {criteria?.Where}" : "");
+
+            var conn = tc.Connection;
+
+            if (validCriteria)
+                conn.Execute(sql, criteria.Parameters);
+            else
+                conn.Execute(sql);
+        }
+
 
         protected IEnumerable<T> GetManyInternal(TransactionContext tc)
         {
