@@ -32,19 +32,15 @@ type DbContextToken() =
 
         member _.DeleteAsync(key: string) : Task =
             task {
-                let conn = GlobalDbConnection.Instance.Connection
-                use cmd = conn.CreateCommand()
-                cmd.CommandText <- "DELETE FROM SECURITY WHERE KEY = @key"
-                cmd.Parameters.AddWithValue("@key", key) |> ignore
-                let! _ = cmd.ExecuteNonQueryAsync()
-                return ()
-            }
+                  let repo = new SecurityRepository();
+                
+                  let token = repo.DeleteTokenByKey(key);
+
+                  return ()
+                 }
 
         member _.ClearAsync() : Task =
             task {
-                let conn = GlobalDbConnection.Instance.Connection
-                use cmd = conn.CreateCommand()
-                cmd.CommandText <- "DELETE FROM SECURITY"
-                let! _ = cmd.ExecuteNonQueryAsync()
-                return ()
+                let repo = new SecurityRepository();
+                repo.DeleteAllTokens();
             }

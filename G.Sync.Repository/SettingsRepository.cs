@@ -9,7 +9,7 @@ namespace G.Sync.Repository
     {
         #region Consts
         private readonly string _createSettingsTableSql =
-            @"CREATE TABLE IF NOT EXISTS SETTINGS (ID INTEGER PRIMARY KEY AUTOINCREMENT, FOLDER TEXT NOT NULL)";
+            @"CREATE TABLE IF NOT EXISTS SETTINGS (ID INTEGER PRIMARY KEY AUTOINCREMENT, FOLDER TEXT NOT NULL, DRIVEPROJECTNAME TEXT NOT NULL)";
         #endregion
 
         public void CreateDefaultSettings()
