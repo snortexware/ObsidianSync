@@ -13,6 +13,8 @@ namespace G.Sync.DataContracts
         public string RelPath { get; set; }
         public string ParentId { get; set; }
         public string PathPart { get; set; }
+        public string FilePath { get; set; }
+
 
     }
 }

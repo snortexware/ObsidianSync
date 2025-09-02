@@ -1,11 +1,14 @@
 ﻿using G.Sync.DataContracts;
 using G.Sync.Entities;
 using Google.Apis.Drive.v3;
+using Google.Apis.Drive.v3.Data;
+using Google.Apis.Upload;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using static Dapper.SqlMapper;
 using File = Google.Apis.Drive.v3.Data.File;
 
@@ -60,5 +63,35 @@ namespace G.Sync.Google.Api
             }
         }
 
+        public string UploadFileInternal(DriveService service, ApiPathDto dto)
+        {
+            var relPath = Path.GetRelativePath(dto.BaseLocal, dto.FilePath);
+            var relDir = Path.GetDirectoryName(relPath);
+            var parentId = string.IsNullOrWhiteSpace(relDir) ?  dto.RootId : EnsureDriverFolderInternal(service, new ApiPathDto { RelPath = relDir, RootId = dto.RootId, BaseLocal = dto.BaseLocal });
+
+            var meta = new File { Name = Path.GetFileName(dto.FilePath), Parents = new[] { parentId } };
+            using var stream = new FileStream(dto.FilePath, FileMode.Open);
+            var req = service.Files.Create(meta, stream, "application/octet-stream");
+            req.Fields = "id";
+            var status = req.Upload();
+
+            if(status.Status != UploadStatus.Completed)
+                throw new Exception($"Erro upload: {status.Exception}");
+
+            return req.ResponseBody.Id;
+        }
+
+        //let UploadFile(service: DriveService, filePath: string, localRoot: string, driveRoot: string) =
+    //let relPath = Path.GetRelativePath(localRoot, filePath)
+    //let relDir = Path.GetDirectoryName(relPath)
+    //let parentId = if String.IsNullOrWhiteSpace(relDir) then driveRoot else EnsureDriveFolder service driveRoot localRoot relDir
+
+    //let meta = File(Name = Path.GetFileName(filePath), Parents = [| parentId |])
+    //use stream = new FileStream(filePath, FileMode.Open)
+    //let req = service.Files.Create(meta, stream, "application/octet-stream")
+    //req.Fields<- "id"
+    //let status = req.Upload()
+    //Some req.ResponseBody.Id
+    //if status.Status<> Google.Apis.Upload.UploadStatus.Completed then failwithf "Erro upload: %A" status.Exception
     }
 }

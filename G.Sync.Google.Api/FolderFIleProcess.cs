@@ -38,6 +38,6 @@ namespace G.Sync.Google.Api
 
         public string GetOrCreateRootFolder(SettingsEntity settings) => GetOrCreateRootFolderInternal(_service, settings);
         
-       
+        public string UploadFile(ApiPathDto dto) => UploadFileInternal(_service, dto);
     }
 }
