@@ -46,6 +46,7 @@ namespace G.Sync.Google.Api
             listReq.Q = $"mimeType = 'application/vnd.google-apps.folder' and name = '{folderName}' and trashed = false";
             listReq.Fields = "files(id)";
             var result = listReq.Execute();
+
             if (result.Files.Count > 0)
                 return result.Files[0].Id;
             else
@@ -81,17 +82,17 @@ namespace G.Sync.Google.Api
             return req.ResponseBody.Id;
         }
 
-        //let UploadFile(service: DriveService, filePath: string, localRoot: string, driveRoot: string) =
-    //let relPath = Path.GetRelativePath(localRoot, filePath)
-    //let relDir = Path.GetDirectoryName(relPath)
-    //let parentId = if String.IsNullOrWhiteSpace(relDir) then driveRoot else EnsureDriveFolder service driveRoot localRoot relDir
 
-    //let meta = File(Name = Path.GetFileName(filePath), Parents = [| parentId |])
-    //use stream = new FileStream(filePath, FileMode.Open)
-    //let req = service.Files.Create(meta, stream, "application/octet-stream")
-    //req.Fields<- "id"
-    //let status = req.Upload()
-    //Some req.ResponseBody.Id
-    //if status.Status<> Google.Apis.Upload.UploadStatus.Completed then failwithf "Erro upload: %A" status.Exception
+        public string FileExistsInternal(DriveService service, string fileName, string parentId)
+        {
+            var listReq = service.Files.List();
+            listReq.Q = $"name = '{fileName}' and '{parentId}' in parents and trashed = false";
+            listReq.Fields = "files(id)";
+            var result = listReq.Execute();
+            if (result.Files.Count > 0)
+                return result.Files[0].Id;
+            else
+                return string.Empty;
+        }
     }
 }
