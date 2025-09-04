@@ -83,7 +83,6 @@ namespace G.Sync.Google.Api
             return req.ResponseBody.Id;
         }
 
-
         public string FileExistsInternal(DriveService service, string fileName, string parentId)
         {
             var listReq = service.Files.List();
@@ -118,7 +117,6 @@ namespace G.Sync.Google.Api
             }
 
             return string.Empty;
-
         }
     }
 }

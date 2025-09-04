@@ -6,8 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="TokenStore.fs" />
-    <Compile Include="UserConnection.fs" />
     <Compile Include="FileProcess.fs" />
   </ItemGroup>
 
