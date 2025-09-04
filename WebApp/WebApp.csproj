@@ -15,8 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\StartComponent\StartComponent.fsproj" />
-    <ProjectReference Include="..\Utils\Utils.csproj" />
+    <ProjectReference Include="..\Utils\G.Sync.Utils.csproj" />
   </ItemGroup>
 
 </Project>
