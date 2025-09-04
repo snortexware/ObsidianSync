@@ -6,6 +6,7 @@ using Google.Apis.Upload;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -68,7 +69,7 @@ namespace G.Sync.Google.Api
         {
             var relPath = Path.GetRelativePath(dto.BaseLocal, dto.FilePath);
             var relDir = Path.GetDirectoryName(relPath);
-            var parentId = string.IsNullOrWhiteSpace(relDir) ?  dto.RootId : EnsureDriverFolderInternal(service, new ApiPathDto { RelPath = relDir, RootId = dto.RootId, BaseLocal = dto.BaseLocal });
+            var parentId = string.IsNullOrWhiteSpace(relDir) ? dto.RootId : EnsureDriverFolderInternal(service, new ApiPathDto { RelPath = relDir, RootId = dto.RootId, BaseLocal = dto.BaseLocal });
 
             var meta = new File { Name = Path.GetFileName(dto.FilePath), Parents = new[] { parentId } };
             using var stream = new FileStream(dto.FilePath, FileMode.Open);
@@ -76,7 +77,7 @@ namespace G.Sync.Google.Api
             req.Fields = "id";
             var status = req.Upload();
 
-            if(status.Status != UploadStatus.Completed)
+            if (status.Status != UploadStatus.Completed)
                 throw new Exception($"Erro upload: {status.Exception}");
 
             return req.ResponseBody.Id;
@@ -93,6 +94,31 @@ namespace G.Sync.Google.Api
                 return result.Files[0].Id;
             else
                 return string.Empty;
+        }
+
+        public string UpdateFileInternal(DriveService _service, string localRoot, string driveRoot)
+        {
+            var relPath = Path.GetRelativePath(localRoot, localRoot);
+            var relDir = Path.GetDirectoryName(relPath);
+
+            var parentId = string.IsNullOrWhiteSpace(relDir) ? driveRoot : EnsureDriverFolderInternal(_service, new ApiPathDto { RelPath = relDir, RootId = driveRoot, BaseLocal = localRoot });
+
+            var fileName = Path.GetFileName(localRoot);
+
+            if (FileExistsInternal(_service, fileName, parentId) is string id && !string.IsNullOrWhiteSpace(id))
+            {
+                using var stream = new FileStream(localRoot, FileMode.Open);
+                var req = _service.Files.Update(null, id, stream, "application/octet-stream");
+                req.Fields = "id";
+                var status = req.Upload();
+
+                if (status.Status != UploadStatus.Completed)
+                    throw new Exception($"Erro update: {status.Exception}");
+                return req.ResponseBody.Id;
+            }
+
+            return string.Empty;
+
         }
     }
 }
