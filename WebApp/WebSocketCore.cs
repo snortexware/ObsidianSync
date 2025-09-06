@@ -35,7 +35,7 @@ public static class Program
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
 
-                NotifyHandler.notifyHandler.AddClient(webSocket);
+                NotifyHandler.Instance.AddClient(webSocket);
 
                 var buffer = new byte[1024 * 4];
 
@@ -56,10 +56,6 @@ public static class Program
 
         app.MapControllers();
         app.RunAsync();
-
-        var pc = new MainStartProcess();
-        pc.Start();
-
     }
 }
 
