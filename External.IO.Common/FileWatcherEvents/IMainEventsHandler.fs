@@ -1,7 +1,6 @@
 namespace External.IO.Common.FileWatcherEvents.MainEventsHandler
 
 open System.IO
-open SystemDataContracts
 
 type IMainEventsHandler =
      abstract member ChangedEventHandler : FileSystemEventArgs  -> unit

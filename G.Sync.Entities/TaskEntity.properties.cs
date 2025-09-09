@@ -1,18 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace G.Sync.Entities
+﻿namespace G.Sync.Entities
 {
-    public partial class TaskEntity 
+    public partial class TaskEntity
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string ExecuteTs { get; set; }
-        public int Status { get; set; }
-        public string FileId { get; set; }
-        public int TaskType { get; set; }
+        public record FileId(string value);
+        public string? Id { get; }
+        public string Name { get; private set; }
+        public string CreatedAt { get; private set; }
+        public TasksStatus Status { get; private set; }
+        public TaskTypes TaskType { get; private set; }
+
+        public TaskEntity CreateTask(FileId fileId, TaskTypes taskType)
+        {
+            switch (taskType)
+            {
+                case TaskTypes.UploadFile:
+                    this.Name = "Upload File";
+                    break;
+                case TaskTypes.DownloadFile:
+                    this.Name = "Download File";
+                    break;
+                case TaskTypes.DeleteFile:
+                    this.Name = "Delete File";
+                    break;
+                case TaskTypes.RenameFile:
+                    this.Name = "Rename File";
+                    break;
+            }
+
+            this.TaskType = taskType;
+            this.CreatedAt = DateTime.UtcNow.ToString();
+            this.Status = TasksStatus.Pending;
+
+            return this;
+        }
+
+        public void MarkAsCompleted() => this.Status = TasksStatus.Completed;
+        public void MarkAsFailed() => this.Status = TasksStatus.Failed;
+        public enum TasksStatus
+        {
+            Pending = 1,
+            Completed = 2,
+            Failed = 3,
+        }
+
+        public enum TaskTypes
+        {
+            UploadFile = 0,
+            DownloadFile = 1,
+            DeleteFile = 2,
+            RenameFile = 3
+        }
     }
 }

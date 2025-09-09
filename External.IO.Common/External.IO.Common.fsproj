@@ -13,7 +13,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Google.Api.MainProcess\Google.Api.MainProcess.fsproj" />
       <ProjectReference Include="..\Utils\G.Sync.Utils.csproj" />
     </ItemGroup>
 

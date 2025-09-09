@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace G.Sync.Entities
+namespace G.Sync.Entities.Interfaces
 {
-    public partial class TaskEntity
+    public interface ITaskNotifier
     {
-       
+        Task NotifyAsync(TaskEntity task);
     }
 }
