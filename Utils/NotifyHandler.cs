@@ -16,7 +16,7 @@ namespace Utils.NotifyHandler
         {
             get
             {
-                if (instance == null) instance = new NotifyHandler();
+                instance ??= new NotifyHandler();
                 return instance;
             }
         }
@@ -25,9 +25,9 @@ namespace Utils.NotifyHandler
 
         public void AddClient(WebSocket ws) => _clients.Add(ws);
 
-        public async Task NotifyAsync(TaskEntity dto)
+        public async Task NotifyAsync(TaskEntity task)
         {
-            var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            var json = JsonSerializer.Serialize(task, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             var buffer = Encoding.UTF8.GetBytes(json);
             var segment = new ArraySegment<byte>(buffer);
 

@@ -9,7 +9,7 @@ using static G.Sync.Entities.TaskEntity;
 
 namespace G.Sync.External.IO
 {
-    public class ProcessHelper
+    internal class ProcessHelper
     {
         private readonly ITaskNotifier _notifier;
         public ProcessHelper(ITaskNotifier notifier)

@@ -16,7 +16,7 @@ using File = Google.Apis.Drive.v3.Data.File;
 
 namespace G.Sync.Google.Api
 {
-    public class FolderFileProcess : ApiFolderFileHelper
+    public abstract class FolderFileProcess : ApiFolderFileHelper
     {
         private readonly DriveService _service = ApiContext.Instance.Connection;
 
@@ -35,7 +35,7 @@ namespace G.Sync.Google.Api
 
             return parentId;
         }
-
+        public string UpdateFile(string localRoot, string driveRoot) => UpdateFileInternal(_service, localRoot, driveRoot);
         public string GetOrCreateRootFolder(SettingsEntity settings) => GetOrCreateRootFolderInternal(_service, settings);
         
         public string UploadFile(ApiPathDto dto) => UploadFileInternal(_service, dto);
