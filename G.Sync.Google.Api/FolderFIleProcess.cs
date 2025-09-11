@@ -2,16 +2,7 @@
 using G.Sync.Entities;
 using Google.Apis.Drive.v3;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Management;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Linq;
-using static Dapper.SqlMapper;
-using static System.Net.Mime.MediaTypeNames;
+using System.IO;
 using File = Google.Apis.Drive.v3.Data.File;
 
 namespace G.Sync.Google.Api
@@ -20,24 +11,25 @@ namespace G.Sync.Google.Api
     {
         private readonly DriveService _service = ApiContext.Instance.Connection;
 
-        public string EnsureDriveFolder(ApiPathDto dto)
-        {
-            var parts = dto.RelPath.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            string parentId = dto.RootId;
+        public string EnsureDriveFolder(string relPath, string driveRoot) =>
+            EnsureDriveFolderInternal(_service, relPath, driveRoot);
 
-            foreach (var part in parts)
-            {
-                if (string.IsNullOrWhiteSpace(part))
-                    continue;
+        public string GetOrCreateRootFolder(SettingsEntity settings) =>
+            GetOrCreateRootFolderInternal(_service, settings);
 
-                parentId = EnsureDriverFolderInternal(_service, new ApiPathDto { PathPart = part, ParentId = parentId});
-            }
+        public string UploadFile(string localRoot, string filePath, string driveRoot) =>
+            UploadFileInternal(_service, localRoot, filePath, driveRoot);
 
-            return parentId;
-        }
-        public string UpdateFile(string localRoot, string driveRoot) => UpdateFileInternal(_service, localRoot, driveRoot);
-        public string GetOrCreateRootFolder(SettingsEntity settings) => GetOrCreateRootFolderInternal(_service, settings);
-        
-        public string UploadFile(ApiPathDto dto) => UploadFileInternal(_service, dto);
+        public string UpdateFile(string localRoot, string filePath, string driveRoot) =>
+            UpdateFileInternal(_service, localRoot, filePath, driveRoot);
+
+        public string DeleteFile(string localRoot, string filePath, string driveRoot) =>
+            DeleteFileInternal(_service, localRoot, filePath, driveRoot);
+
+        public string RenameFile(string localRoot, string oldPath, string newPath, string driveRoot) =>
+            RenameFileInternal(_service, localRoot, oldPath, newPath, driveRoot);
+
+        public void DownloadAllFiles(string driveRoot) =>
+            DownloadAllFilesInternal(_service, driveRoot);
     }
 }

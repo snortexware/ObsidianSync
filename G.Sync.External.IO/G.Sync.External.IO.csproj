@@ -10,6 +10,7 @@
     <ProjectReference Include="..\G.Sync.Entities\G.Sync.Entities.csproj" />
     <ProjectReference Include="..\G.Sync.Google.Api\G.Sync.Google.Api.csproj" />
     <ProjectReference Include="..\G.Sync.Repository\G.Sync.Repository.csproj" />
+    <ProjectReference Include="..\G.Sync.TasksManagment\G.Sync.TasksManagment.csproj" />
   </ItemGroup>
 
 </Project>
