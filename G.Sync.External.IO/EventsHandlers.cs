@@ -1,5 +1,6 @@
 ﻿using G.Sync.DataContracts;
 using G.Sync.Entities;
+using G.Sync.Entities.Interfaces;
 using G.Sync.Google.Api;
 using G.Sync.Repository;
 using G.Sync.TasksManagment;
@@ -12,31 +13,26 @@ using static G.Sync.Entities.TaskEntity;
 using static G.Sync.Google.Api.ApiContext;
 using static G.Sync.Google.Api.FolderFileProcess;
 
-namespace MainEvents
+namespace G.Sync.External.IO
 {
-    public class EventsHandler : FolderFileProcess
+    public class EventsHandler : FolderFileProcess, IEventsHandler
     {
         private static readonly ConcurrentDictionary<string, byte[]> recentHashes = new ConcurrentDictionary<string, byte[]>();
-
         private readonly string _localRoot;
-        private readonly DriveService _drive = Instance.Connection;
         private readonly string _driveRoot;
         private readonly DateTime timestamp = DateTime.UtcNow;
 
-        public EventsHandler()
+        public EventsHandler(SettingsEntity settings)
         {
-            var settingsRepo = new SettingsRepository();
-            var settings = settingsRepo.GetSettings();
-
-            _localRoot = settings.GoogleDriveFolderName ?? @"C:\obsidian-sync"; // fallback
+            _localRoot = settings.GoogleDriveFolderName; // fallback
             _driveRoot = GetOrCreateRootFolder(settings);
 
             DownloadAllFiles(_driveRoot);
         }
 
-        public void ChangedEventHandler(FileSystemEventArgs e)
+        public void ChangedEventHandler(object sender, FileSystemEventArgs e)
         {
-            if (PrepareTask(e.Name))
+            if (PrepareTask(e.Name, TaskTypes.ChangeFile))
             {
                 byte[] newHash = GetFileHash(e.FullPath);
 
@@ -57,9 +53,9 @@ namespace MainEvents
             }
         }
 
-        public void CreatedEventHandler(FileSystemEventArgs e)
+        public void CreatedEventHandler(object sender, FileSystemEventArgs e)
         {
-            if (PrepareTask(e.Name))
+            if (PrepareTask(e.Name, TaskTypes.CreateFile))
             {
                 byte[] hash = GetFileHash(e.FullPath);
                 recentHashes[e.FullPath] = hash;
@@ -73,9 +69,9 @@ namespace MainEvents
             }
         }
 
-        public void DeletedEventHandler(FileSystemEventArgs e)
+        public void DeletedEventHandler(object sender, FileSystemEventArgs e)
         {
-            if (!IsInternalFile(e.Name) && PrepareTask(e.Name))
+            if (!IsInternalFile(e.Name) && PrepareTask(e.Name, TaskTypes.DeleteFile))
             {
                 using (var tc = new TaskWrapper(e.Name))
                 {
@@ -86,9 +82,9 @@ namespace MainEvents
             }
         }
 
-        public void RenamedEventHandler(RenamedEventArgs e)
+        public void RenamedEventHandler(object sender, RenamedEventArgs e)
         {
-            if (!IsInternalFile(e.Name) && PrepareTask(e.Name))
+            if (!IsInternalFile(e.Name) && PrepareTask(e.Name, TaskTypes.RenameFile))
             {
                 using (var tc = new TaskWrapper(e.Name))
                 {
@@ -103,6 +99,10 @@ namespace MainEvents
         {
             var task = new TaskEntity();
             task.CreateTask(name, type);
+            var taskRepo = new TaskRepository();
+            var taskCreation = new TaskCreation(taskRepo);
+            taskCreation.CreateTask();
+            return taskCreation.IsPrepared;
         }
 
         private static byte[] GetFileHash(string fullPath)
@@ -116,7 +116,7 @@ namespace MainEvents
 
         private static bool IsInternalFile(string name)
         {
-            return name.StartsWith("~");
+            return name.StartsWith("~") || name.EndsWith(".tmp") || name.Equals("sync.db") || name.Equals("sync.db-journal");
         }
     }
 }

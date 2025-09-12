@@ -7,7 +7,7 @@ public class TaskCreation
 {
     private readonly ITaskRepository _taskRepo;
     private TaskEntity? _task;
-
+    public bool IsPrepared { get; set; } = false;
     public TaskCreation(ITaskRepository taskRepo)
     {
         _taskRepo = taskRepo;
@@ -27,5 +27,7 @@ public class TaskCreation
 
         if (taskExist is null)
             _taskRepo.Save(_task);
+
+        IsPrepared = true;   
     }
 }

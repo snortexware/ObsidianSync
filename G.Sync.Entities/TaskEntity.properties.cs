@@ -25,6 +25,9 @@
                 case TaskTypes.RenameFile:
                     this.Name = "Rename File";
                     break;
+                case TaskTypes.CreateFile:
+                    this.Name = "Create File";
+                    break;
             }
 
             this.TaskType = taskType;
@@ -49,7 +52,9 @@
             UploadFile = 0,
             DownloadFile = 1,
             DeleteFile = 2,
-            RenameFile = 3
+            RenameFile = 3,
+            CreateFile = 4,
+            ChangeFile = 5  
         }
     }
 }

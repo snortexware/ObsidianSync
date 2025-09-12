@@ -55,7 +55,7 @@ namespace G.Sync.Google.Api
 
         public string GetOrCreateRootFolderInternal(DriveService service, SettingsEntity settings)
         {
-            var folderName = settings.GoogleDriveFolderName ?? "obsidian-sync";
+            var folderName = settings.GoogleDriveFolderName;
 
             var listReq = service.Files.List();
             listReq.Q = $"mimeType = 'application/vnd.google-apps.folder' and name = '{folderName}' and trashed = false";
@@ -164,7 +164,7 @@ namespace G.Sync.Google.Api
         {
             var settingsRepo = new SettingsRepository();
             var settings = settingsRepo.GetSettings();
-            var localRoot = settings?.GoogleDriveFolderName ?? "obsidian-sync";
+            var localRoot = settings?.GoogleDriveFolderName;
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
             async Task DownloadFromFolder(string folderId, string localPath)
