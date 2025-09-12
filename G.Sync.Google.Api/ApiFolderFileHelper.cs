@@ -1,5 +1,6 @@
 ﻿using G.Sync.DataContracts;
 using G.Sync.Entities;
+using G.Sync.Entities.Interfaces;
 using G.Sync.Google.Interfaces;
 using G.Sync.Repository;
 using Google.Apis.Drive.v3;
@@ -17,8 +18,11 @@ namespace G.Sync.Google.Api
     public abstract class ApiFolderFileHelper
     {
         private readonly IGoogleDriveService _googleDriveService;
-        public ApiFolderFileHelper(IGoogleDriveService _drive)
+        private readonly ISettingsEntity _settings;
+
+        public ApiFolderFileHelper(IGoogleDriveService _drive, ISettingsEntity settings)
         {
+            _settings = settings;
             _googleDriveService = _drive;
         }
 
@@ -62,9 +66,9 @@ namespace G.Sync.Google.Api
         }
 
 
-        public string GetOrCreateRootFolderInternal(SettingsEntity settings)
+        public string GetOrCreateRootFolderInternal()
         {
-            var folderName = settings.GoogleDriveFolderName;
+            var folderName = _settings.GoogleDriveFolderName;
 
             var query = $"mimeType = 'application/vnd.google-apps.folder' and name = '{folderName}' and trashed = false";
             var fields = "files(id)";
@@ -168,9 +172,7 @@ namespace G.Sync.Google.Api
 
         public void DownloadAllFilesInternal(DriveService service, string driveRoot)
         {
-            var settingsRepo = new SettingsRepository();
-            var settings = settingsRepo.GetSettings();
-            var localRoot = settings?.GoogleDriveFolderName;
+            var localRoot = _settings.GoogleDriveFolderName;
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
             async Task DownloadFromFolder(string folderId, string localPath)

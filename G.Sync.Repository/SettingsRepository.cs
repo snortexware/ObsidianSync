@@ -5,7 +5,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace G.Sync.Repository
 {
-    public class SettingsRepository : EntityRepository<SettingsEntity>, ISettingsRepository
+    public class SettingsRepository : EntityRepository<SettingsEntity>, ISettingsRepository 
     {
         #region Consts
         private readonly string _createSettingsTableSql =
@@ -14,14 +14,12 @@ namespace G.Sync.Repository
 
         public void CreateDefaultSettings()
         {
-            var settings = new SettingsEntity
-            {
-                Id = 1,
-                Folder = @"C:\obsidian-sync"
-            };
+            var settings = new SettingsEntity();
+            settings.CreateSettings("MyDriveProject", "GDriveFolder", "C:\\obsidian-sync");
 
             Save(settings);
         }
+
         public void CreateSettingsTable() => CreateEntityTable(_createSettingsTableSql);
 
         public SettingsEntity? GetSettings() => Get(1);
