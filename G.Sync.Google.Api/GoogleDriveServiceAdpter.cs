@@ -1,6 +1,7 @@
 ﻿using G.Sync.Google.Interfaces;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
+using Google.Apis.Upload;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,37 +37,30 @@ namespace G.Sync.Google.Api
             return request.ExecuteAsync().Result;
         }
 
-        public File CreateFolder(string name, string parentId)
-        {
-            var folderMeta = new File
-            {
-                Name = name,
-                MimeType = "application/vnd.google-apps.folder",
-                Parents = new[] { parentId }
-            };
-
+        public File CreateFolder(File folderMeta, string fields)
+        {   
             var createRequest = _service.Files.Create(folderMeta);
-            createRequest.Fields = "id, name";
+            createRequest.Fields = fields;
             return createRequest.Execute();
         }
 
-        public File UploadFile(string parentId, string localPath)
+        public (File responseBody, IUploadProgress progress) UploadFile(string parentId, string localPath)
         {
             var meta = new File { Name = Path.GetFileName(localPath), Parents = new[] { parentId } };
             using var stream = new FileStream(localPath, FileMode.Open);
             var req = _service.Files.Create(meta, stream, "application/octet-stream");
             req.Fields = "id, name";
-            req.Upload();
-            return req.ResponseBody;
+            var progres = req.Upload();
+            return (req.ResponseBody, progres);
         }
 
-        public File UpdateFile(string id, string localPath)
+        public (File responseBody, IUploadProgress progress) UpdateFile(string id, string localPath)
         {
             using var stream = new FileStream(localPath, FileMode.Open);
             var req = _service.Files.Update(null, id, stream, "application/octet-stream");
             req.Fields = "id, name";
-            req.Upload();
-            return req.ResponseBody;
+            var progress = req.Upload();
+            return (req.ResponseBody, progress);
         }
 
         public void DeleteFile(string id)

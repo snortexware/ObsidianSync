@@ -1,11 +1,13 @@
 ﻿using G.Sync.DataContracts;
 using G.Sync.Entities;
+using G.Sync.Google.Interfaces;
 using G.Sync.Repository;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
 using Google.Apis.Upload;
 using System;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using File = Google.Apis.Drive.v3.Data.File;
 using FileS = System.IO.File;
@@ -14,7 +16,13 @@ namespace G.Sync.Google.Api
 {
     public abstract class ApiFolderFileHelper
     {
-        protected string EnsureDriveFolderInternal(DriveService service, string relPath, string rootId)
+        private readonly IGoogleDriveService _googleDriveService;
+        public ApiFolderFileHelper(IGoogleDriveService _drive)
+        {
+            _googleDriveService = _drive;
+        }
+
+        protected string EnsureDriveFolderInternal(string relPath, string rootId)
         {
             var parts = relPath.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
 
@@ -22,11 +30,10 @@ namespace G.Sync.Google.Api
 
             foreach (var part in parts)
             {
-                var request = service.Files.List();
-                request.Q = $"mimeType='application/vnd.google-apps.folder' and name='{part}' and '{parentId}' in parents and trashed=false";
-                request.Spaces = "drive";
-                request.Fields = "files(id, name)";
-                var result = request.Execute();
+                var query = $"mimeType='application/vnd.google-apps.folder' and name='{part}' and '{parentId}' in parents and trashed=false";
+                var fields = "files(id, name)";
+
+                var result = _googleDriveService.ListFiles(query, fields);
 
                 string folderId;
                 if (result.Files.Count > 0)
@@ -41,9 +48,11 @@ namespace G.Sync.Google.Api
                         MimeType = "application/vnd.google-apps.folder",
                         Parents = new[] { parentId }
                     };
-                    var createRequest = service.Files.Create(folderMeta);
-                    createRequest.Fields = "id";
-                    folderId = createRequest.Execute().Id;
+
+                    var fieldsFolder = "id";
+
+                    var createRequest = _googleDriveService.CreateFolder(folderMeta, fieldsFolder);
+                    folderId = createRequest.Id;
                 }
 
                 parentId = folderId;
@@ -53,14 +62,14 @@ namespace G.Sync.Google.Api
         }
 
 
-        public string GetOrCreateRootFolderInternal(DriveService service, SettingsEntity settings)
+        public string GetOrCreateRootFolderInternal(SettingsEntity settings)
         {
             var folderName = settings.GoogleDriveFolderName;
 
-            var listReq = service.Files.List();
-            listReq.Q = $"mimeType = 'application/vnd.google-apps.folder' and name = '{folderName}' and trashed = false";
-            listReq.Fields = "files(id)";
-            var result = listReq.Execute();
+            var query = $"mimeType = 'application/vnd.google-apps.folder' and name = '{folderName}' and trashed = false";
+            var fields = "files(id)";
+
+            var result = _googleDriveService.ListFiles(query, fields);
 
             if (result.Files.Count > 0)
                 return result.Files[0].Id;
@@ -70,9 +79,10 @@ namespace G.Sync.Google.Api
                 Name = folderName,
                 MimeType = "application/vnd.google-apps.folder"
             };
-            var createReq = service.Files.Create(meta);
-            createReq.Fields = "id";
-            var folder = createReq.Execute();
+
+            var fieldsFolder = "id";
+            var folder = _googleDriveService.CreateFolder(meta, fieldsFolder);
+
             Console.WriteLine($"Pasta raiz criada com ID: {folder.Id}");
             return folder.Id;
         }
@@ -81,26 +91,21 @@ namespace G.Sync.Google.Api
         {
             var relPath = Path.GetRelativePath(localRoot, filePath);
             var relDir = Path.GetDirectoryName(relPath);
-            var parentId = string.IsNullOrWhiteSpace(relDir) ? driveRoot : EnsureDriveFolderInternal(service, relDir, driveRoot);
+            var parentId = string.IsNullOrWhiteSpace(relDir) ? driveRoot : EnsureDriveFolderInternal(relDir, driveRoot);
 
-            var meta = new File { Name = Path.GetFileName(filePath), Parents = new[] { parentId } };
-            using var stream = new FileStream(filePath, FileMode.Open);
-            var req = service.Files.Create(meta, stream, "application/octet-stream");
-            req.Fields = "id";
-            var status = req.Upload();
+            var upload = _googleDriveService.UploadFile(filePath, parentId);
+            var uploadProgress = upload.progress;
+            if (uploadProgress.Status != UploadStatus.Completed)
+                throw new Exception($"Erro upload: {uploadProgress.Exception}");
 
-            if (status.Status != UploadStatus.Completed)
-                throw new Exception($"Erro upload: {status.Exception}");
-
-            return req.ResponseBody.Id;
+            return upload.responseBody.Id;
         }
 
-        public string FileExistsInternal(DriveService service, string fileName, string parentId)
+        public string FileExistsInternal(string fileName, string parentId)
         {
-            var listReq = service.Files.List();
-            listReq.Q = $"name = '{fileName}' and '{parentId}' in parents and trashed = false";
-            listReq.Fields = "files(id)";
-            var result = listReq.Execute();
+            var query = $"name = '{fileName}' and '{parentId}' in parents and trashed = false";
+            var fields = "files(id)";
+            var result = _googleDriveService.ListFiles(query, fields);
             return result.Files.Count > 0 ? result.Files[0].Id : string.Empty;
         }
 
@@ -108,34 +113,35 @@ namespace G.Sync.Google.Api
         {
             var relPath = Path.GetRelativePath(localRoot, filePath);
             var relDir = Path.GetDirectoryName(relPath);
-            var parentId = string.IsNullOrWhiteSpace(relDir) ? driveRoot : EnsureDriveFolderInternal(service, relDir, driveRoot);
+            var parentId = string.IsNullOrWhiteSpace(relDir) ? driveRoot : EnsureDriveFolderInternal(relDir, driveRoot);
             var fileName = Path.GetFileName(filePath);
 
-            if (FileExistsInternal(service, fileName, parentId) is string id && !string.IsNullOrWhiteSpace(id))
+            if (FileExistsInternal(fileName, parentId) is string id && !string.IsNullOrWhiteSpace(id))
             {
                 using var stream = new FileStream(filePath, FileMode.Open);
-                var req = service.Files.Update(null, id, stream, "application/octet-stream");
-                req.Fields = "id";
-                var status = req.Upload();
+                var update = _googleDriveService.UpdateFile(id, filePath);
+                var updateProgress = update.progress;
+                var status = updateProgress.Status;
 
-                if (status.Status != UploadStatus.Completed)
-                    throw new Exception($"Erro update: {status.Exception}");
-                return req.ResponseBody.Id;
+                if (status != UploadStatus.Completed)
+                    throw new Exception($"Erro update: {updateProgress.Exception}");
+
+                return update.responseBody.Id;
             }
+
             return string.Empty;
         }
 
-        public string DeleteFileInternal(DriveService service, string localRoot, string filePath, string driveRoot)
+        public string DeleteFileInternal(string localRoot, string filePath, string driveRoot)
         {
             var relPath = Path.GetRelativePath(localRoot, filePath);
             var relDir = Path.GetDirectoryName(relPath);
-            var parentId = string.IsNullOrWhiteSpace(relDir) ? driveRoot : EnsureDriveFolderInternal(service, relDir, driveRoot);
+            var parentId = string.IsNullOrWhiteSpace(relDir) ? driveRoot : EnsureDriveFolderInternal(relDir, driveRoot);
             var fileName = Path.GetFileName(filePath);
 
-            if (FileExistsInternal(service, fileName, parentId) is string id && !string.IsNullOrWhiteSpace(id))
+            if (FileExistsInternal(fileName, parentId) is string id && !string.IsNullOrWhiteSpace(id))
             {
-                var req = service.Files.Delete(id);
-                req.Execute();
+                _googleDriveService.DeleteFile(id);
                 return id;
             }
             return string.Empty;
@@ -145,11 +151,11 @@ namespace G.Sync.Google.Api
         {
             var relOld = Path.GetRelativePath(localRoot, oldPath);
             var relDir = Path.GetDirectoryName(relOld);
-            var parentId = string.IsNullOrWhiteSpace(relDir) ? driveRoot : EnsureDriveFolderInternal(service, relDir, driveRoot);
+            var parentId = string.IsNullOrWhiteSpace(relDir) ? driveRoot : EnsureDriveFolderInternal(relDir, driveRoot);
             var oldName = Path.GetFileName(oldPath);
             var newName = Path.GetFileName(newPath);
 
-            if (FileExistsInternal(service, oldName, parentId) is string id && !string.IsNullOrWhiteSpace(id))
+            if (FileExistsInternal(oldName, parentId) is string id && !string.IsNullOrWhiteSpace(id))
             {
                 var meta = new File { Name = newName };
                 var req = service.Files.Update(meta, id);

@@ -1,4 +1,5 @@
 ﻿using Google.Apis.Drive.v3.Data;
+using Google.Apis.Upload;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,9 @@ namespace G.Sync.Google.Interfaces
     {
         FileList ListFiles(string query, string fields, string spaces = "drive");
         FileList ListFilesAsync(string query, string fields, string spaces = "drive");
-        File CreateFolder(string name, string parentId);
-        File UploadFile(string parentId, string localPath);
-        File UpdateFile(string id, string localPath);
+        File CreateFolder(File folderMeta, string fields);
+        (File responseBody, IUploadProgress  progress) UploadFile(string parentId, string localPath);
+        (File responseBody, IUploadProgress  progress) UpdateFile(string id, string localPath);
         void DeleteFile(string id);
         File RenameFile(string id, string newName);
     }
