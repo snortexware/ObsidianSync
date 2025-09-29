@@ -8,7 +8,6 @@ namespace G.Sync.Entities.Interfaces
 {
     public interface ISettingsRepository
     {
-        void CreateSettingsTable();
         void CreateDefaultSettings();
         SettingsEntity? GetSettings();
         void SaveSettings(SettingsEntity? settings);

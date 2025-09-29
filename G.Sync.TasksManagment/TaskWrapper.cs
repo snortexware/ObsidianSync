@@ -1,5 +1,4 @@
-﻿using Database.Connection;
-using G.Sync.DataContracts;
+﻿using G.Sync.DataContracts;
 using G.Sync.Repository;
 using G.Sync.Service;
 using static G.Sync.Entities.TaskEntity;

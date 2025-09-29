@@ -3,9 +3,9 @@
     public partial class TaskEntity
     {
         public string? FileId { get; private set; }
-        public string? Id { get; }
+        public long Id { get; }
         public string Name { get; private set; }
-        public string CreatedAt { get; private set; }
+        public DateTime CreatedAt { get; private set; }
         public TasksStatus Status { get; private set; }
         public TaskTypes TaskType { get; private set; }
 
@@ -31,7 +31,7 @@
             }
 
             this.TaskType = taskType;
-            this.CreatedAt = DateTime.UtcNow.ToString();
+            this.CreatedAt = DateTime.UtcNow;
             this.Status = TasksStatus.Pending;
             this.FileId = fileId;
 

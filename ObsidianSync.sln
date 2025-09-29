@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36212.18
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11012.119 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain-layer", "Domain-layer", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -10,8 +10,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application-layer", "Application-layer", "{3B4B3FDC-E080-4F88-9925-ACD46673C5E9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure-layer", "Infrastructure-layer", "{6464EE6D-8F2A-47D7-A88D-96EA99EB7985}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "External.IO.Common", "External.IO.Common\External.IO.Common.fsproj", "{AA439213-1D32-4BD0-934D-B3B098DAB18C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{6A6ADEBB-19A2-483B-A1B1-35DF3A4CFD73}"
 EndProject
@@ -45,10 +43,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AA439213-1D32-4BD0-934D-B3B098DAB18C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AA439213-1D32-4BD0-934D-B3B098DAB18C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AA439213-1D32-4BD0-934D-B3B098DAB18C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AA439213-1D32-4BD0-934D-B3B098DAB18C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C1A0DADF-8302-4268-A58E-744DD7189EBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C1A0DADF-8302-4268-A58E-744DD7189EBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1A0DADF-8302-4268-A58E-744DD7189EBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -102,7 +96,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{AA439213-1D32-4BD0-934D-B3B098DAB18C} = {6464EE6D-8F2A-47D7-A88D-96EA99EB7985}
 		{C1A0DADF-8302-4268-A58E-744DD7189EBA} = {6A6ADEBB-19A2-483B-A1B1-35DF3A4CFD73}
 		{99CDDB93-EA8F-4C60-84C1-21FE6927568A} = {F0B11867-56DA-4FB5-B66B-DA2510C1C69A}
 		{4EDDB9AD-09E8-42DB-889C-CA85074F2819} = {3B4B3FDC-E080-4F88-9925-ACD46673C5E9}

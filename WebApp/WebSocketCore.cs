@@ -1,6 +1,4 @@
-using MyFSharpLib;
 using System.Net.WebSockets;
-using Utils.NotifyHandler;
 
 public static class Program
 {
@@ -35,7 +33,7 @@ public static class Program
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
 
-                NotifyHandler.Instance.AddClient(webSocket);
+                //NotifyHandler.Instance.AddClient(webSocket);
 
                 var buffer = new byte[1024 * 4];
 

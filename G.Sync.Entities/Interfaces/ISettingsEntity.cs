@@ -8,7 +8,7 @@ namespace G.Sync.Entities.Interfaces
 {
     public interface ISettingsEntity
     {
-        public int Id { get;}
+        public long Id { get;}
         public string? Folder { get;}
         public string? DriveProjectName { get; }
         public string? GoogleDriveFolderName { get; }

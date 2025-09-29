@@ -17,7 +17,7 @@ namespace G.Sync.Service
         {
             var settings = _repo.Get();
 
-            settings.UpdateFolder(folder); 
+            settings.(folder); 
 
             _repo.Save(settings); 
         }

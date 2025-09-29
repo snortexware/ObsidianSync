@@ -1,29 +1,47 @@
-﻿using G.Sync.Entities;
+﻿using G.Sync.Common;
+using G.Sync.Entities;
 using G.Sync.Entities.Interfaces;
 using G.Sync.Repository;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace G.Sync.Repository
 {
-    public class SettingsRepository : EntityRepository<SettingsEntity>, ISettingsRepository 
+    public class SettingsRepository : ISettingsRepository
     {
-        #region Consts
-        private readonly string _createSettingsTableSql =
-            @"CREATE TABLE IF NOT EXISTS SETTINGS (ID INTEGER PRIMARY KEY AUTOINCREMENT, FOLDER TEXT NOT NULL, DRIVEPROJECTNAME TEXT NOT NULL)";
-        #endregion
-
         public void CreateDefaultSettings()
         {
+            var dbContext = new GSyncContext();
             var settings = new SettingsEntity();
-            settings.CreateSettings("MyDriveProject", "GDriveFolder", "C:\\obsidian-sync");
 
-            Save(settings);
+            settings.CreateSettings("MyDriveProject", "GDriveFolder", "C:\\obsidian-sync");
+            dbContext.Settings.Add(settings);
+            dbContext.SaveChanges();
         }
 
-        public void CreateSettingsTable() => CreateEntityTable(_createSettingsTableSql);
+        public void UpdateFolder(string folder)
+        {
+            var dbContext = new GSyncContext();
+            var settings = dbContext.Settings.FirstOrDefault();
 
-        public SettingsEntity? GetSettings() => Get(1);
+           if(settings != null)
+            {
+                settings.UpdateFolder(folder);
+                dbContext.Settings.Update(settings);
+                dbContext.SaveChanges();
+            }
+        }
 
-        public void SaveSettings(SettingsEntity? settings) => Save(settings);
+        public SettingsEntity? GetSettings()
+        {
+            var dbContext = new GSyncContext();
+            return dbContext.Settings.FirstOrDefault();
+        }
+
+        public void SaveSettings(SettingsEntity settings)
+        {
+            var dbContext = new GSyncContext();
+            dbContext.Settings.Update(settings);
+            dbContext.SaveChanges();
+        }
     }
 }

@@ -17,5 +17,6 @@ namespace G.Sync.Google.Interfaces
         (File responseBody, IUploadProgress  progress) UpdateFile(string id, string localPath);
         void DeleteFile(string id);
         File RenameFile(string id, string newName);
+        void DownloadFile(string localTarget, string id);
     }
 }

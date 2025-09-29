@@ -9,44 +9,60 @@ using System.Threading.Tasks;
 
 namespace G.Sync.Repository
 {
-    public class SecurityRepository : EntityRepository<SecurityEntity>, ISecurityRepository
+    public class SecurityRepository : ISecurityRepository
     {
         public void CreateOrUpdateToken(string token, string key)
         {
-            const string sqlCommand = @"INSERT INTO SECURITY (KEY, TOKEN,  CREATEDAT)
-                                        VALUES (@key, @token, @created)
-                                        ON CONFLICT(KEY) DO UPDATE SET
-                                        TOKEN = excluded.TOKEN,
-                                        CREATEDAT = excluded.CREATEDAT";
+        var dbContext = new GSyncContext();
+            var existingEntity = dbContext.Securities.FirstOrDefault(s => s.Key == key);
 
-            var rawCommand = new RawEntityCommand(sqlCommand);
-
-            rawCommand.Parameters.Add("key", key);
-            rawCommand.Parameters.Add("token", token);
-            rawCommand.Parameters.Add("created", DateTime.UtcNow.ToString());
-
-            Execute(rawCommand);
+            if (existingEntity != null)
+            {
+                existingEntity.Token = token;
+                dbContext.Securities.Update(existingEntity);
+            }
+            else
+            {
+                var newEntity = new SecurityEntity
+                {
+                    Key = key,
+                    Token = token,
+                    CreatedAt = DateTime.UtcNow,
+                };
+                dbContext.Securities.Add(newEntity);
+            }
+            dbContext.SaveChanges();
         }
 
         public void CreateTokenTableIfNotExists()
         {
-            throw new NotImplementedException();
+            var dbContext = new GSyncContext();
+            dbContext.Database.EnsureCreated();
         }
 
-        public void DeleteAllTokens() => Delete(new Criteria());
-
-        public void DeleteTokenByKey(string key) => Delete(CreateKeyCriteria(key));
-
-        public SecurityEntity? GetTokenByKey(string key) => Get(CreateKeyCriteria(key));
-
-        public void SaveToken(SecurityEntity entity) => Save(entity);
-
-        private Criteria CreateKeyCriteria(string key)
+        public void DeleteAllTokens() 
         {
-            var criteria = new Criteria("KEY = @key");
-            criteria.Parameters.Add("key", key);
+            var dbContext = new GSyncContext();
+            dbContext.Securities.RemoveRange(dbContext.Securities);
+        }
 
-            return criteria;
+        public void DeleteTokenByKey(string key)
+        {
+            var dbContext = new GSyncContext();
+            dbContext.Securities.RemoveRange(dbContext.Securities.Where(s => s.Key == key));
+        }
+
+        public SecurityEntity? GetTokenByKey(string key)
+        {
+            var dbContext = new GSyncContext(); 
+            return dbContext.Securities.FirstOrDefault(s => s.Key == key);
+        }
+
+        public void SaveToken(SecurityEntity entity)
+        {
+          var dbContext = new GSyncContext();
+            dbContext.Securities.Add(entity);
+            dbContext.SaveChanges();
         }
     }
 }

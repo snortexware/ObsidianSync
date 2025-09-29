@@ -1,15 +1,6 @@
-﻿using G.Sync.DataContracts;
-using G.Sync.Entities;
-using G.Sync.Entities.Interfaces;
+﻿using G.Sync.Entities.Interfaces;
 using G.Sync.Google.Interfaces;
-using G.Sync.Repository;
-using Google.Apis.Drive.v3;
-using Google.Apis.Drive.v3.Data;
 using Google.Apis.Upload;
-using System;
-using System.IO;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
 using File = Google.Apis.Drive.v3.Data.File;
 using FileS = System.IO.File;
 
@@ -17,10 +8,10 @@ namespace G.Sync.Google.Api
 {
     public abstract class ApiFolderFileHelper
     {
-        private readonly IGoogleDriveService _googleDriveService;
-        private readonly ISettingsEntity _settings;
+        private IGoogleDriveService _googleDriveService;
+        private ISettingsEntity _settings;
 
-        public ApiFolderFileHelper(IGoogleDriveService _drive, ISettingsEntity settings)
+        public void Inject(IGoogleDriveService _drive, ISettingsEntity settings)
         {
             _settings = settings;
             _googleDriveService = _drive;
@@ -91,7 +82,7 @@ namespace G.Sync.Google.Api
             return folder.Id;
         }
 
-        public string UploadFileInternal(DriveService service, string localRoot, string filePath, string driveRoot)
+        public string UploadFileInternal(string localRoot, string filePath, string driveRoot)
         {
             var relPath = Path.GetRelativePath(localRoot, filePath);
             var relDir = Path.GetDirectoryName(relPath);
@@ -113,7 +104,7 @@ namespace G.Sync.Google.Api
             return result.Files.Count > 0 ? result.Files[0].Id : string.Empty;
         }
 
-        public string UpdateFileInternal(DriveService service, string localRoot, string filePath, string driveRoot)
+        public string UpdateFileInternal(string localRoot, string filePath, string driveRoot)
         {
             var relPath = Path.GetRelativePath(localRoot, filePath);
             var relDir = Path.GetDirectoryName(relPath);
@@ -151,7 +142,7 @@ namespace G.Sync.Google.Api
             return string.Empty;
         }
 
-        public string RenameFileInternal(DriveService service, string localRoot, string oldPath, string newPath, string driveRoot)
+        public string RenameFileInternal(string localRoot, string oldPath, string newPath, string driveRoot)
         {
             var relOld = Path.GetRelativePath(localRoot, oldPath);
             var relDir = Path.GetDirectoryName(relOld);
@@ -161,26 +152,25 @@ namespace G.Sync.Google.Api
 
             if (FileExistsInternal(oldName, parentId) is string id && !string.IsNullOrWhiteSpace(id))
             {
-                var meta = new File { Name = newName };
-                var req = service.Files.Update(meta, id);
-                req.Fields = "id";
-                var file = req.Execute();
+                var file = _googleDriveService.RenameFile(id, newName);
+
                 return file.Id;
             }
+
             return string.Empty;
         }
 
-        public void DownloadAllFilesInternal(DriveService service, string driveRoot)
+        public void DownloadAllFilesInternal(string driveRoot)
         {
             var localRoot = _settings.GoogleDriveFolderName;
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
             async Task DownloadFromFolder(string folderId, string localPath)
             {
-                var req = service.Files.List();
-                req.Q = $"'{folderId}' in parents and trashed = false";
-                req.Fields = "files(id, name, mimeType, md5Checksum)";
-                var result = await req.ExecuteAsync();
+                var fields = "files(id, name, mimeType, md5Checksum)";
+                var query = $"'{folderId}' in parents and trashed = false";
+                var result = _googleDriveService.ListFiles(query, fields);
+
                 foreach (var f in result.Files)
                 {
                     var localTarget = Path.Combine(localPath, f.Name);
@@ -193,10 +183,9 @@ namespace G.Sync.Google.Api
                     {
                         if (!FileS.Exists(localTarget))
                         {
-                            Console.WriteLine($"[{timestamp}] BAIXANDO {f.Name}");
-                            using var stream = new FileStream(localTarget, FileMode.Create, FileAccess.Write);
-                            var getReq = service.Files.Get(f.Id);
-                            await getReq.DownloadAsync(stream);
+
+                            Console.WriteLine($"[{timestamp}] BAIXANDO ARQUIVO {f.Name}");
+                            _googleDriveService.DownloadFile(localTarget, f.Id);
                             Console.WriteLine($"[{timestamp}] SALVO {f.Name}");
                         }
                     }

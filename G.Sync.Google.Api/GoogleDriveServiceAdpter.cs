@@ -38,7 +38,7 @@ namespace G.Sync.Google.Api
         }
 
         public File CreateFolder(File folderMeta, string fields)
-        {   
+        {
             var createRequest = _service.Files.Create(folderMeta);
             createRequest.Fields = fields;
             return createRequest.Execute();
@@ -74,6 +74,13 @@ namespace G.Sync.Google.Api
             var req = _service.Files.Update(meta, id);
             req.Fields = "id, name";
             return req.Execute();
+        }
+
+        public async void DownloadFile(string localTarget, string id)
+        {
+            using var stream = new FileStream(localTarget, FileMode.Create, FileAccess.Write);
+            var getReq = _service.Files.Get(id);
+            await getReq.DownloadAsync(stream);
         }
     }
 

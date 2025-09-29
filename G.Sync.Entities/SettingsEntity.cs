@@ -4,7 +4,7 @@ namespace G.Sync.Entities
 {
     public class SettingsEntity : ISettingsEntity
     {
-        public int Id { get; private set; }
+        public long Id { get; private set; }
         public string? Folder { get; private set; }
         public string? DriveProjectName { get; private set; }
         public string? GoogleDriveFolderName { get; private set; }
@@ -18,5 +18,11 @@ namespace G.Sync.Entities
                 GoogleDriveFolderName = googleDriveFolderName
             };
         }
+
+        public void UpdateFolder(string folder)
+        {
+            Folder = folder;
+        }
+
     }
 }
