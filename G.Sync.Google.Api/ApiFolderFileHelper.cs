@@ -1,6 +1,9 @@
-﻿using G.Sync.Entities.Interfaces;
+﻿using G.Sync.DataContracts;
+using G.Sync.Entities;
+using G.Sync.Entities.Interfaces;
 using G.Sync.Google.Interfaces;
 using Google.Apis.Upload;
+using static G.Sync.Entities.TaskEntity;
 using File = Google.Apis.Drive.v3.Data.File;
 using FileS = System.IO.File;
 
@@ -14,6 +17,8 @@ namespace G.Sync.Google.Api
         public void Inject(IGoogleDriveService _drive, ISettingsEntity settings)
         {
             _settings = settings;
+            Console.WriteLine("Value of settings is " + settings);
+
             _googleDriveService = _drive;
         }
 
@@ -59,7 +64,7 @@ namespace G.Sync.Google.Api
 
         public string GetOrCreateRootFolderInternal()
         {
-            var folderName = _settings.GoogleDriveFolderName;
+            var folderName = _settings.Folder;
 
             var query = $"mimeType = 'application/vnd.google-apps.folder' and name = '{folderName}' and trashed = false";
             var fields = "files(id)";
@@ -84,11 +89,13 @@ namespace G.Sync.Google.Api
 
         public string UploadFileInternal(string localRoot, string filePath, string driveRoot)
         {
+            Console.WriteLine("Uploading file: " + filePath);
+
             var relPath = Path.GetRelativePath(localRoot, filePath);
             var relDir = Path.GetDirectoryName(relPath);
             var parentId = string.IsNullOrWhiteSpace(relDir) ? driveRoot : EnsureDriveFolderInternal(relDir, driveRoot);
 
-            var upload = _googleDriveService.UploadFile(filePath, parentId);
+            var upload = _googleDriveService.UploadFile(parentId, filePath);
             var uploadProgress = upload.progress;
             if (uploadProgress.Status != UploadStatus.Completed)
                 throw new Exception($"Erro upload: {uploadProgress.Exception}");
@@ -100,7 +107,13 @@ namespace G.Sync.Google.Api
         {
             var query = $"name = '{fileName}' and '{parentId}' in parents and trashed = false";
             var fields = "files(id)";
+
+            if (_googleDriveService == null)
+                _googleDriveService = new GoogleDriveServiceAdapter(ApiContext.Connection);
+
             var result = _googleDriveService.ListFiles(query, fields);
+
+            Console.WriteLine("existe? " + result.Files.Count);
             return result.Files.Count > 0 ? result.Files[0].Id : string.Empty;
         }
 
@@ -111,9 +124,8 @@ namespace G.Sync.Google.Api
             var parentId = string.IsNullOrWhiteSpace(relDir) ? driveRoot : EnsureDriveFolderInternal(relDir, driveRoot);
             var fileName = Path.GetFileName(filePath);
 
-            if (FileExistsInternal(fileName, parentId) is string id && !string.IsNullOrWhiteSpace(id))
+            if (FileExistsInternal(fileName, parentId) is string id && !string.IsNullOrWhiteSpace(id) && !IsFileLocked(filePath))
             {
-                using var stream = new FileStream(filePath, FileMode.Open);
                 var update = _googleDriveService.UpdateFile(id, filePath);
                 var updateProgress = update.progress;
                 var status = updateProgress.Status;
@@ -129,14 +141,23 @@ namespace G.Sync.Google.Api
 
         public string DeleteFileInternal(string localRoot, string filePath, string driveRoot)
         {
+            Console.WriteLine("Delete the file");
+
             var relPath = Path.GetRelativePath(localRoot, filePath);
             var relDir = Path.GetDirectoryName(relPath);
             var parentId = string.IsNullOrWhiteSpace(relDir) ? driveRoot : EnsureDriveFolderInternal(relDir, driveRoot);
             var fileName = Path.GetFileName(filePath);
 
+            Console.WriteLine(fileName + " " +  parentId);
+
             if (FileExistsInternal(fileName, parentId) is string id && !string.IsNullOrWhiteSpace(id))
             {
+                Console.WriteLine("Goo deleteee");
+
                 _googleDriveService.DeleteFile(id);
+
+                Console.WriteLine(id);
+
                 return id;
             }
             return string.Empty;
@@ -193,6 +214,27 @@ namespace G.Sync.Google.Api
             }
 
             DownloadFromFolder(driveRoot, localRoot).GetAwaiter().GetResult();
+            Console.Write("Finalizado?");
+        }
+
+        public static bool IsFileLocked(string filePath)
+        {
+            FileStream? stream = null;
+
+            try
+            {
+                stream = System.IO.File.Open(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+            finally
+            {
+                stream?.Close();
+            }
+
+            return false;
         }
     }
 }

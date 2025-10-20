@@ -29,6 +29,12 @@
                     this.Name = "Create File";
                     break;
             }
+            if (string.IsNullOrEmpty(this.Name))
+            {
+                this.Name = "Unknown Task";
+            }
+
+            Console.WriteLine("passei aqui para alterar status");
 
             this.TaskType = taskType;
             this.CreatedAt = DateTime.UtcNow;
@@ -36,6 +42,24 @@
             this.FileId = fileId;
 
             return this;
+        }
+
+        public void CopyFrom(TaskEntity other)
+        {
+            if (other == null) throw new ArgumentNullException(nameof(other));
+
+            this.FileId = other.FileId;
+            this.Name = other.Name;
+            this.CreatedAt = other.CreatedAt;
+            this.Status = other.Status;
+            this.TaskType = other.TaskType;
+        }
+
+        public void UpdateStatusByFileId(string fileId, TasksStatus newStatus)
+        {
+            if (this.FileId != fileId || string.IsNullOrEmpty(fileId)) throw new Exception("FileId mismatch or missing.");
+
+            this.Status = newStatus;
         }
 
         public void MarkAsCompleted() => this.Status = TasksStatus.Completed;

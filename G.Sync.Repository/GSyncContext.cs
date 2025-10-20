@@ -8,6 +8,7 @@ namespace G.Sync.Repository
         public DbSet<TaskEntity> Tasks { get; set; }
         public DbSet<SettingsEntity> Settings { get; set; }
         public DbSet<SecurityEntity> Securities { get; set; }
+        public DbSet<TaskQueue> TaskQueues { get; set; }
 
         private const string dbPath = @"C:\obsidian-sync\sync.db";
 

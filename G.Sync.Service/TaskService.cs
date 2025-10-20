@@ -1,6 +1,8 @@
 ﻿
 using G.Sync.Entities;
 using G.Sync.Entities.Interfaces;
+using G.Sync.Google.Api;
+using System.Data;
 using static G.Sync.Entities.TaskEntity;
 
 namespace G.Sync.Service
@@ -9,13 +11,17 @@ namespace G.Sync.Service
     {
         private readonly ITaskRepository _taskRepo = taskRepo;
 
-        public void UpdateTaskStatus(string id, TasksStatus newStatus)
+        public void UpdateTaskStatus(string fileId, TasksStatus newStatus)
         {
-            var task = _taskRepo.GetById(id);
+            Console.WriteLine(fileId + newStatus.ToString());
+
+            var task = _taskRepo.GetByFileId(fileId);
 
             if (task == null) throw new Exception("Task not found");
 
-            task.Status = (int)newStatus;
+            task.UpdateStatusByFileId(fileId, newStatus);
+
+            Console.WriteLine("salvou?" + task.Status);
 
             _taskRepo.Save(task);
         }

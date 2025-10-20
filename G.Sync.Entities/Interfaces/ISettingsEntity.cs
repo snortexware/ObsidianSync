@@ -12,6 +12,6 @@ namespace G.Sync.Entities.Interfaces
         public string? Folder { get;}
         public string? DriveProjectName { get; }
         public string? GoogleDriveFolderName { get; }
-        public ISettingsEntity CreateSettings(string driveProjetoName, string googleDriveFolderName, string folder);
+        public SettingsEntity CreateSettings(string driveProjetoName, string googleDriveFolderName, string folder);
     }
 }

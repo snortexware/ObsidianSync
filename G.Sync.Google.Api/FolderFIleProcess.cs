@@ -1,5 +1,6 @@
 ﻿using G.Sync.DataContracts;
 using G.Sync.Entities;
+using G.Sync.Entities.Interfaces;
 using Google.Apis.Drive.v3;
 using System;
 using System.IO;
@@ -7,8 +8,21 @@ using File = Google.Apis.Drive.v3.Data.File;
 
 namespace G.Sync.Google.Api
 {
-    public abstract class FolderFileProcess : ApiFolderFileHelper
+    public class FolderFileProcess : ApiFolderFileHelper
     {
+        public void InjectDepedencies(ISettingsEntity settingsRepository)
+        {
+            var api = ApiContext.Connection;
+            var dri = new GoogleDriveServiceAdapter(api);
+
+            if (settingsRepository == null)
+            {
+                throw new Exception("Settings not found in database.");
+            }
+
+            Inject(dri, settingsRepository);
+        }
+
         public string EnsureDriveFolder(string relPath, string rootId) =>
             EnsureDriveFolderInternal(relPath, rootId);
 

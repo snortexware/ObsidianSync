@@ -1,5 +1,4 @@
-﻿using G.Sync.Common;
-using G.Sync.Entities;
+﻿using G.Sync.Entities;
 using G.Sync.Entities.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -11,7 +10,7 @@ namespace G.Sync.Repository
 {
     public class SecurityRepository : ISecurityRepository
     {
-        public void CreateOrUpdateToken(string token, string key)
+        public void CreateOrUpdateToken(string key, string token)
         {
         var dbContext = new GSyncContext();
             var existingEntity = dbContext.Securities.FirstOrDefault(s => s.Key == key);
@@ -25,8 +24,8 @@ namespace G.Sync.Repository
             {
                 var newEntity = new SecurityEntity
                 {
-                    Key = key,
-                    Token = token,
+                    Key = token,
+                    Token = key ,
                     CreatedAt = DateTime.UtcNow,
                 };
                 dbContext.Securities.Add(newEntity);

@@ -10,6 +10,8 @@ namespace G.Sync.Google.Api
     {
         public async Task StoreAsync<T>(string key, T value)
         {
+            Console.WriteLine($"Storing token with key: {key}");
+
             var tokenJson = JsonSerializer.Serialize(value);
             var repo = new SecurityRepository();
 
@@ -20,9 +22,14 @@ namespace G.Sync.Google.Api
 
         public async Task<T> GetAsync<T>(string key)
         {
+            Console.WriteLine("Token raw JSON: " + key);
+
             var repo = new SecurityRepository();
 
             var token = repo.GetTokenByKey(key);
+
+            if (token == null || string.IsNullOrEmpty(token.Token))
+                return default!;
 
             return await Task.FromResult(JsonSerializer.Deserialize<T>(token.Token));
         }

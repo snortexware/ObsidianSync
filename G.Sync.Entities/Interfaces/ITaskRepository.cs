@@ -12,5 +12,6 @@ namespace G.Sync.Entities.Interfaces
         public TaskEntity? GetByFileId(string fileId);
         TaskEntity? GetById(long id);
         void Save(TaskEntity entity);
+        public List<TaskEntity> GetPendingTasks();
     }
 }

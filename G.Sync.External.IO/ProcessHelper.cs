@@ -45,7 +45,7 @@ namespace G.Sync.External.IO
         public static TaskEntity InitialTaskProcess(string fileId, TaskTypes taskType)
         {
             var task = new TaskEntity();
-            return task.CreateTask(new FileId(fileId), taskType);
+            return task.CreateTask(fileId, taskType);
         }
 
         public bool PrepareTask(string name, string path, TaskTypes taskType)
@@ -57,7 +57,7 @@ namespace G.Sync.External.IO
                 try
                 {
                     var taskRepo = new TaskRepository();
-                    taskRepo.Create();
+                  
                     taskRepo.Save(task);
 
                     _notifier.NotifyAsync(task).ConfigureAwait(false);

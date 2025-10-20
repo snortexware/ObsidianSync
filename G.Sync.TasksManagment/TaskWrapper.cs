@@ -25,7 +25,9 @@ namespace G.Sync.TasksManagment
             try
             {
                 if (_completed)
+                {
                     taskService.UpdateTaskStatus(_fileId, TasksStatus.Completed);
+                }
 
             }
             catch (Exception ex)

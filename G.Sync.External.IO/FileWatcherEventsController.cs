@@ -18,7 +18,10 @@ namespace G.Sync.External.IO
 
         public void StartWatching(SettingsEntity settings)
         {  
+            Console.WriteLine($"Iniciando monitoramento da pasta: {settings.GoogleDriveFolderName}");
+
             _events = new EventsHandler(settings);
+
             _fileWatcher = new FileSystemWatcher(settings.GoogleDriveFolderName)
             {
                 IncludeSubdirectories = true,

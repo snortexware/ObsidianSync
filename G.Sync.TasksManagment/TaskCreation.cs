@@ -18,16 +18,13 @@ public class TaskCreation
         _task = entity;
     }
 
-    public void CreateTask()
+    public void SaveTask()
     {
         if (_task is null)
             throw new Exception("The data of the task was not found. Call Data() before CreateTask().");
 
-        var taskExist = _taskRepo.GetByFileId(_task.FileId);
+        _taskRepo.Save(_task);
 
-        if (taskExist is null)
-            _taskRepo.Save(_task);
-
-        IsPrepared = true;   
+        IsPrepared = true;
     }
 }

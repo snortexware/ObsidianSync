@@ -23,10 +23,29 @@ namespace G.Sync.Repository
             return dbContext.Tasks.FirstOrDefault(x => x.Id == id);
         }
 
+        public List<TaskEntity> GetPendingTasks()
+        {
+            var dbContext = new GSyncContext();
+
+            return dbContext.Tasks.Where(x => x.Status == TasksStatus.Pending).ToList();
+        }
+
+
         public void Save(TaskEntity entity)
         {
             var dbContext = new GSyncContext();
-            dbContext.Tasks.Add(entity);
+
+            var existingTask = dbContext.Tasks.FirstOrDefault(x => x.FileId == entity.FileId);
+
+            if (existingTask == null)
+            {
+                dbContext.Tasks.Add(entity);
+            }
+            else
+            {
+                existingTask.CopyFrom(entity);
+            }
+
             dbContext.SaveChanges();
         }
     }

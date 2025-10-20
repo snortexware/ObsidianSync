@@ -23,7 +23,7 @@ namespace G.Sync.Google.Api
                 return _instance.Value;
             }
         }
-        public DriveService Connection { get; private set; }
+        public static DriveService Connection { get; private set; }
 
         private ApiContext()
         {
@@ -33,9 +33,14 @@ namespace G.Sync.Google.Api
         public static void SetJson(string json)
         {
             _json = json;
+            Initialize(_json);
         }
-        private void Initialize(string json)
+
+        private static void Initialize(string json)
         {
+
+            Console.WriteLine("Passei aqui");
+
             using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(json));
 
             var credential = GoogleWebAuthorizationBroker.AuthorizeAsync(

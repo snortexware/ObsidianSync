@@ -1,4 +1,5 @@
 using System.Net.WebSockets;
+using Utils.NotifyHandler;
 
 public static class Program
 {
@@ -27,13 +28,13 @@ public static class Program
         }
 
         app.UseWebSockets();
-        app.Map("/ws", async context =>
+        app.Map("/gsync", async context =>
         {
             if (context.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
 
-                //NotifyHandler.Instance.AddClient(webSocket);
+                NotifyHandler.Instance.AddClient(webSocket);
 
                 var buffer = new byte[1024 * 4];
 

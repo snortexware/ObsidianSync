@@ -3,6 +3,7 @@ using System;
 using G.Sync.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace G.Sync.Repository.Migrations
 {
     [DbContext(typeof(GSyncContext))]
-    partial class GSyncContextModelSnapshot : ModelSnapshot
+    [Migration("20251012001949_MigracaoTabelasNovas")]
+    partial class MigracaoTabelasNovas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.9");
@@ -83,35 +86,6 @@ namespace G.Sync.Repository.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tasks");
-                });
-
-            modelBuilder.Entity("G.Sync.Entities.TaskQueue", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("DriveRoot")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("FilePath")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("LocalRoot")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("NewPath")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OldPath")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TaskQueues");
                 });
 #pragma warning restore 612, 618
         }

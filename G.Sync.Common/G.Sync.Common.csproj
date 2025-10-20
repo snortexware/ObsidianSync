@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\G.Sync.DatabaseManagment\G.Sync.DatabaseManagment.csproj" />
     <ProjectReference Include="..\G.Sync.Entities\G.Sync.Entities.csproj" />
   </ItemGroup>
 
