@@ -14,7 +14,7 @@ namespace G.Sync.Service.Interfaces
         string UpdateFile(string localRoot, string filePath, string driveRoot);
         string DeleteFile(string localRoot, string filePath, string driveRoot);
         string RenameFile(string localRoot, string oldPath, string newPath, string driveRoot);
-        void DownloadAllFiles(string driveRoot);
+        void DownloadAllFiles(string driveRoot, string vaultPath);
     }
 
 }

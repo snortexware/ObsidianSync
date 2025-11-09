@@ -1,6 +1,7 @@
 ﻿using G.Sync.Entities;
 using G.Sync.Entities.Interfaces;
 using G.Sync.Repository;
+using Microsoft.EntityFrameworkCore;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace G.Sync.Repository
@@ -9,7 +10,7 @@ namespace G.Sync.Repository
     {
         public void CreateDefaultSettings()
         {
-            var dbContext = new GSyncContext();
+            using var dbContext = new GSyncContext();
             var settings = new SettingsEntity();
 
             settings.CreateSettings("MyDriveProject", "GDriveFolder", "C:\\obsidian-sync");
@@ -19,7 +20,7 @@ namespace G.Sync.Repository
 
         public void UpdateFolder(string folder)
         {
-            var dbContext = new GSyncContext();
+            using var dbContext = new GSyncContext();
             var settings = dbContext.Settings.FirstOrDefault();
 
            if(settings != null)
@@ -33,12 +34,12 @@ namespace G.Sync.Repository
         public SettingsEntity? GetSettings()
         {
             var dbContext = new GSyncContext();
-            return dbContext.Settings.FirstOrDefault();
+            return dbContext.Settings.AsNoTracking().FirstOrDefault();
         }
 
         public void SaveSettings(SettingsEntity settings)
         {
-            var dbContext = new GSyncContext();
+            using var dbContext = new GSyncContext();
             dbContext.Settings.Update(settings);
             dbContext.SaveChanges();
         }

@@ -41,7 +41,7 @@ namespace G.Sync.Google.Api
         public string RenameFile(string localRoot, string oldPath, string newPath, string driveRoot) =>
             RenameFileInternal(localRoot, oldPath, newPath, driveRoot);
 
-        public void DownloadAllFiles(string driveRoot) =>
-            DownloadAllFilesInternal(driveRoot);
+        public async void DownloadAllFiles(string driveRoot, string vaultPath) =>
+            DownloadAllFilesInternal(driveRoot, vaultPath);
     }
 }

@@ -17,7 +17,6 @@ namespace G.Sync.Google.Api
         public void Inject(IGoogleDriveService _drive, ISettingsEntity settings)
         {
             _settings = settings;
-            Console.WriteLine("Value of settings is " + settings);
 
             _googleDriveService = _drive;
         }
@@ -181,10 +180,13 @@ namespace G.Sync.Google.Api
             return string.Empty;
         }
 
-        public void DownloadAllFilesInternal(string driveRoot)
+        public async void DownloadAllFilesInternal(string driveRoot, string vaultPath)
         {
             var localRoot = _settings.GoogleDriveFolderName;
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            var vaultName = new DirectoryInfo(vaultPath).Name;
+
+            Console.WriteLine($"[{timestamp}] Fazendo download de arquivos na nuvem para o vault {vaultName}, aguarde....");
 
             async Task DownloadFromFolder(string folderId, string localPath)
             {
@@ -204,7 +206,6 @@ namespace G.Sync.Google.Api
                     {
                         if (!FileS.Exists(localTarget))
                         {
-
                             Console.WriteLine($"[{timestamp}] BAIXANDO ARQUIVO {f.Name}");
                             _googleDriveService.DownloadFile(localTarget, f.Id);
                             Console.WriteLine($"[{timestamp}] SALVO {f.Name}");
@@ -214,7 +215,8 @@ namespace G.Sync.Google.Api
             }
 
             DownloadFromFolder(driveRoot, localRoot).GetAwaiter().GetResult();
-            Console.Write("Finalizado?");
+
+            Console.WriteLine($"[{timestamp}] Download de arquivos finalizados para o vault {vaultName}.");
         }
 
         public static bool IsFileLocked(string filePath)

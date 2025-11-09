@@ -17,7 +17,7 @@ namespace G.Sync.Service
         public string UpdateFile(string localRoot, string filePath, string driveRoot) => _process.UpdateFile(localRoot, filePath, driveRoot);
         public string DeleteFile(string localRoot, string filePath, string driveRoot) => _process.DeleteFile(localRoot, filePath, driveRoot);
         public string RenameFile(string localRoot, string oldPath, string newPath, string driveRoot) => _process.RenameFile(localRoot, oldPath, newPath, driveRoot);
-        public void DownloadAllFiles(string driveRoot) => _process.DownloadAllFiles(driveRoot);
+        public async void DownloadAllFiles(string driveRoot, string vaultPath) => _process.DownloadAllFiles(driveRoot, vaultPath);
     }
 
 }

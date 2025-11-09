@@ -1,218 +1,198 @@
-﻿using G.Sync.DataContracts;
+﻿using G.Sync.Common;
+using G.Sync.DataContracts;
 using G.Sync.Entities;
 using G.Sync.Entities.Interfaces;
-using G.Sync.External.IO.Quartz;
 using G.Sync.Google.Api;
 using G.Sync.Repository;
 using G.Sync.TasksManagment;
-using Google.Apis.Drive.v3;
 using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Security.Cryptography;
+using System.Threading;
 using static G.Sync.Entities.TaskEntity;
-using static G.Sync.Google.Api.ApiContext;
 using static G.Sync.Google.Api.FolderFileProcess;
 
 namespace G.Sync.External.IO
 {
     public class EventsHandler : FolderFileProcess, IEventsHandler
     {
-        private static readonly ConcurrentDictionary<string, byte[]> recentHashes = new ConcurrentDictionary<string, byte[]>();
+        private static readonly ConcurrentDictionary<string, byte[]> recentHashes = new();
         private readonly string _localRoot;
         private readonly string _driveRoot;
         private readonly DateTime timestamp = DateTime.UtcNow;
+        private readonly TaskQueueRepository _taskQueueRepository = new();
 
-        public EventsHandler(SettingsEntity settings)
+        public EventsHandler(SettingsEntity settings, string vaultPath)
         {
             InjectDepedencies(settings);
-
-            _localRoot = settings.GoogleDriveFolderName; // fallback
+            _localRoot = vaultPath;
             _driveRoot = GetOrCreateRootFolder();
-            DownloadAllFiles(_driveRoot);
+            DownloadAllFilesAsync(vaultPath);
         }
 
-        public void ChangedEventHandler(object sender, FileSystemEventArgs e)
-        {
-            if (IsInternalFile(e.Name)) return;
+        public async void DownloadAllFilesAsync(string vaultPath) =>
+            await Task.Run(() => DownloadAllFiles(_driveRoot, vaultPath));
 
-            if (!IsFileLocked(e.FullPath) && PrepareTask(e.Name, TaskTypes.ChangeFile))
-            {
-                byte[] newHash = GetFileHash(e.FullPath);
+        #region Event Handlers
 
-                if (recentHashes.TryGetValue(e.FullPath, out byte[] oldHash))
-                {
-                    if (oldHash.SequenceEqual(newHash))
-                        return;
-                }
+        public void ChangedEventHandler(object sender, FileSystemEventArgs e) =>
+            HandleFileEvent(e.FullPath, TaskTypes.ChangeFile, UpdateFile);
 
-                recentHashes[e.FullPath] = newHash;
+        public void CreatedEventHandler(object sender, FileSystemEventArgs e) =>
+            HandleFileEvent(e.FullPath, TaskTypes.CreateFile, UploadFile);
 
-                using (var tc = new TaskWrapper(e.Name))
-                {
-                    if (!string.IsNullOrEmpty(UpdateFile(_localRoot, e.FullPath, _driveRoot)))
-                    {
-                        tc.Complete();
-                        Console.WriteLine($"[{timestamp}] MODIFICADO {e.Name}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"[{timestamp}] ARQUIVO {e.Name} TRAVADO, AGUARDANDO");
-                    }
-                }
-            }
-        }
-
-        public void CreatedEventHandler(object sender, FileSystemEventArgs e)
-        {
-            if (IsInternalFile(e.Name)) return;
-
-            if (!IsFileLocked(e.FullPath) && PrepareTask(e.Name, TaskTypes.CreateFile))
-            {
-                byte[] hash = GetFileHash(e.FullPath);
-                recentHashes[e.FullPath] = hash;
-
-                using (var tc = new TaskWrapper(e.Name))
-                {
-                    UploadFile(_localRoot, e.FullPath,  _driveRoot);
-                    tc.Complete();
-                    Console.WriteLine($"[{timestamp}] CRIADO {e.Name}");
-                }
-            }
-        }
-
-        public void DeletedEventHandler(object sender, FileSystemEventArgs e)
-        {
-            if (IsInternalFile(e.Name)) return;
-
-            var ready = IsFileReady(_localRoot, "", "", _driveRoot, e.FullPath, TaskTypes.DeleteFile);
-
-            if (!ready) return;
-
-            if (PrepareTask(e.Name, TaskTypes.DeleteFile))
-            {
-                using (var tc = new TaskWrapper(e.Name))
-                {
-                    DeleteFile(_localRoot, e.FullPath, _driveRoot);
-                    tc.Complete();
-                    Console.WriteLine($"[{timestamp}] REMOVIDO {e.Name}");
-                }
-            }
-        }
+        public void DeletedEventHandler(object sender, FileSystemEventArgs e) =>
+            HandleFileEvent(e.FullPath, TaskTypes.DeleteFile, DeleteFile);
 
         public void RenamedEventHandler(object sender, RenamedEventArgs e)
         {
-            if (IsInternalFile(e.Name)) return;
+            string fileName = e.FullPath;
 
-            var ready = IsFileReady(_localRoot, e.OldFullPath, e.FullPath, _driveRoot, e.FullPath, TaskTypes.RenameFile);
+            if (IsInternalFile(fileName)) return;
 
-            if(!ready) return;  
-
-            if (PrepareTask(e.Name, TaskTypes.RenameFile))
+            if (!WaitForFileReady(fileName))
             {
-                using (var tc = new TaskWrapper(e.Name))
+                EnqueueTask(fileName, TaskTypes.RenameFile, _localRoot, e.OldFullPath, e.FullPath, _driveRoot);
+                return;
+            }
+
+            if (PrepareTask(fileName, TaskTypes.RenameFile))
+            {
+                using var tc = new TaskWrapper(fileName);
+                RenameFile(_localRoot, e.OldFullPath, e.FullPath, _driveRoot);
+                tc.Complete();
+                Console.WriteLine($"[{timestamp}] RENOMEADO {e.OldName} -> {fileName}");
+            }
+        }
+
+        #endregion
+
+        #region Helpers
+
+        private async void HandleFileEvent(string fullPath, TaskTypes type, Func<string, string, string, string> action)
+        {
+            if (IsInternalFile(fullPath)) return;
+
+            if (!type.Equals(TaskTypes.DeleteFile) && File.Exists(fullPath))
+            {
+                if (!WaitForFileReady(fullPath) || !(await Helpers.HasFileSettledAsync(fullPath)))
                 {
-                    RenameFile(_localRoot, e.OldFullPath, e.FullPath, _driveRoot);
-                    tc.Complete();
-                    Console.WriteLine($"[{timestamp}] RENOMEADO {e.OldName} -> {e.Name}");
+                    EnqueueTask(fullPath, type, _localRoot, "", "", _driveRoot);
+                    return;
                 }
             }
-        }
 
-        private static bool PrepareTask(string name, TaskTypes type)
-        {
-            var taskRepo = new TaskRepository();
-            var task = taskRepo.GetByFileId(name);
-
-            if (task == null)
+            if (PrepareTask(fullPath, type))
             {
-                task = new TaskEntity();
-                task.CreateTask(name, type);
+                if (!type.Equals(TaskTypes.DeleteFile) && File.Exists(fullPath))
+                {
+                    byte[] newHash = GetFileHash(fullPath);
+
+                    if (recentHashes.TryGetValue(fullPath, out var oldHash) && oldHash.SequenceEqual(newHash))
+                    {
+                        return;
+                    }
+
+                    recentHashes[fullPath] = newHash;
+                }
+
+                using var tc = new TaskWrapper(fullPath);
+                if (!string.IsNullOrEmpty(action(_localRoot, fullPath, _driveRoot)))
+                {
+                    tc.Complete();
+                    Console.WriteLine($"[{timestamp}] {type.ToString().ToUpper()} {fullPath}");
+                }
             }
 
-            var taskCreation = new TaskCreation(taskRepo);
-            taskCreation.Data(task);
-            taskCreation.SaveTask();
-
-            Console.WriteLine("the id is " + task.Id);
-            return taskCreation.IsPrepared;
+            Console.WriteLine($"[{timestamp}] {type.ToString().ToUpper()} {fullPath}");
         }
 
-        private static byte[] GetFileHash(string fullPath)
+        private void EnqueueTask(string path, TaskTypes type, string localRoot, string oldPath, string newPath, string driveRoot)
         {
-            using (var sha256 = SHA256.Create())
-            using (var stream = File.OpenRead(fullPath))
+            if (!_taskQueueRepository.IsFileInQueue(path))
             {
-                return sha256.ComputeHash(stream);
+                var task = new TaskQueue();
+                task.CreateTaskInQueue(localRoot, oldPath, newPath, driveRoot, path, type);
+                _taskQueueRepository.AddTaskQueue(task);
+
+                Console.WriteLine($"File {Path.GetFileName(path)} queued (tmp or locked).");
             }
         }
 
         private static bool IsInternalFile(string name)
         {
-            return name.StartsWith("~") || name.EndsWith(".tmp") || name.Equals("sync.db") || name.Equals("sync.db-journal");
+            var isinternal = name.StartsWith("~") || name.EndsWith(".tmp") || name.EndsWith(".md~") ||
+            name.EndsWith("sync.db") || name.EndsWith("sync.db-journal") || name.EndsWith("sync.db-wal");
+
+            return isinternal;
         }
-        public static bool IsFileLocked(string path, int maxRetries = 10, int delayBetweenRetriesMs = 1500)
+        private static bool IsFileLocked(string path)
         {
             if (!File.Exists(path))
+            {
                 return false;
-
-            for (int attempt = 1; attempt <= maxRetries; attempt++)
-            {
-                try
-                {
-                    using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                    // Double-check that file is still accessible
-                    if (stream.Length >= 0)
-                    {
-                        if (attempt > 1)
-                            Console.WriteLine($"File {Path.GetFileName(path)} unlocked after {attempt} attempts.");
-
-                        return false; // not locked
-                    }
-                }
-                catch (IOException)
-                {
-                    Console.WriteLine($"File {Path.GetFileName(path)} locked (attempt {attempt}/{maxRetries})...");
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    Console.WriteLine($"Unauthorized access to file {Path.GetFileName(path)} (attempt {attempt}/{maxRetries})...");
-                }
-
-                Thread.Sleep(delayBetweenRetriesMs);
             }
 
-            Console.WriteLine($"File {Path.GetFileName(path)} is still locked after {maxRetries} retries.");
-            return true;
+            if (Helpers.IsFileInUse(path))
+                return true;
+
+            try
+            {
+                using var stream = new FileStream(path, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
         }
-        private bool IsFileReady(
-     string localRoot = "",
-     string oldPath = "",
-     string newPath = "",
-     string driveRoot = "",
-     string filePath = "",
-     TaskTypes taskType = TaskTypes.DownloadFile)
+
+        private static byte[] GetFileHash(string fullPath)
         {
-            Console.WriteLine($"IsFileReady - Checking lock status for: {filePath}");
-            Console.WriteLine($"Task type: {taskType}");
-
-            if (!IsFileLocked(filePath))
+            try
             {
-                Thread.Sleep(200);
-                if (!IsFileLocked(filePath))
-                {
-                    Console.WriteLine($"File {Path.GetFileName(filePath)} is ready.");
-                    return true;
-                }
+                Console.WriteLine("Comparing hash from file.");
+                using var sha256 = SHA256.Create();
+                using var stream = File.Open(fullPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+                return sha256.ComputeHash(stream);
             }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
-            var taskRepo = new TaskQueueRepository();
-            var task = new TaskQueue();
-            task.CreateTaskInQueue(localRoot, oldPath, newPath, driveRoot, filePath, taskType);
-            taskRepo.AddTaskQueue(task);
 
-            Console.WriteLine($"File {Path.GetFileName(filePath)} still locked after multiple retries → sent to queue.");
+
+        private bool PrepareTask(string name, TaskTypes type)
+        {
+            var taskRepo = new TaskRepository();
+            var task = taskRepo.GetByFileId(name) ?? new TaskEntity();
+
+            if (task.Id == 0)
+                task.CreateTask(name, type);
+
+            var taskCreation = new TaskCreation(taskRepo);
+            taskCreation.Data(task);
+            taskCreation.SaveTask();
+
+            Console.WriteLine($"Task prepared with ID: {task.Id}");
+            return taskCreation.IsPrepared;
+        }
+
+        private static bool WaitForFileReady(string path, int maxRetries = 10, int delayMs = 1000)
+        {
+            for (int attempt = 0; attempt < maxRetries; attempt++)
+            {
+                if (!IsFileLocked(path))
+                    return true;
+
+                Thread.Sleep(delayMs);
+            }
             return false;
         }
+
+        #endregion
     }
-} 
+}

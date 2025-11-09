@@ -11,30 +11,39 @@ namespace G.Sync.External.IO
         private static readonly Lazy<FileWatcherEventsController> _lazyInstance = new Lazy<FileWatcherEventsController>(() => new FileWatcherEventsController());
         private FileSystemWatcher? _fileWatcher;
         private EventsHandler? _events;
+        private readonly Dictionary<string, FileSystemWatcher> _watchers = [];
 
         private FileWatcherEventsController() { }
 
         public static FileWatcherEventsController Instance => _lazyInstance.Value;
 
-        public void StartWatching(SettingsEntity settings)
-        {  
-            Console.WriteLine($"Iniciando monitoramento da pasta: {settings.GoogleDriveFolderName}");
+        public void StartWatching(IEnumerable<VaultsEntity> vaults, SettingsEntity settings)
+        {
+            StopWatching();
 
-            _events = new EventsHandler(settings);
-
-            _fileWatcher = new FileSystemWatcher(settings.GoogleDriveFolderName)
+            foreach (var vault in vaults)
             {
-                IncludeSubdirectories = true,
-                NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite,
-                Filter = "*.*",
-                EnableRaisingEvents = true
-            };
+                Console.WriteLine($"Watching vault: {vault.Path}");
 
-            _fileWatcher.Created += _events.CreatedEventHandler;
-            _fileWatcher.Deleted += _events.DeletedEventHandler;
-            _fileWatcher.Renamed += _events.RenamedEventHandler;
-            _fileWatcher.Changed += _events.ChangedEventHandler;
+                var events = new EventsHandler(settings, vault.Path);
+
+                var watcher = new FileSystemWatcher(vault.Path)
+                {
+                    IncludeSubdirectories = true,
+                    NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.DirectoryName,
+                    Filter = "*.*",
+                    EnableRaisingEvents = true
+                };
+
+                watcher.Created += events.CreatedEventHandler;
+                watcher.Deleted += events.DeletedEventHandler;
+                watcher.Renamed += events.RenamedEventHandler;
+                watcher.Changed += events.ChangedEventHandler;
+
+                _watchers[vault.Path] = watcher;
+            }
         }
+
 
         public void StopWatching()
         {

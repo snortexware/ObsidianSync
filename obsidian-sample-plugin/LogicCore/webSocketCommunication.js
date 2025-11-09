@@ -4,6 +4,8 @@ const listeners = [];
 export const startWS = (port = 5000) => {
   if (ws && ws.readyState === WebSocket.OPEN) return ws; 
 
+  getAllFiles();
+  
   ws = new WebSocket(`ws://localhost:${port}/ws`);
 
   ws.onmessage = (event) => {
@@ -17,6 +19,22 @@ export const startWS = (port = 5000) => {
 
   return ws;
 };
+
+export const getAllFiles = () => {
+const adapter = this.app.vault.adapter;
+let vaultPath;
+
+if (adapter instanceof obsidian.FileSystemAdapter) {
+  vaultPath = adapter.getBasePath();
+  const files = this.app.vault.getFiles();
+
+  var a = files.map(f => `${vaultPath}/${f.path}`);
+
+  console.log(a);
+}
+
+  return null;
+}
 
 export const sendNewConfig = (configObj) => 
   {
