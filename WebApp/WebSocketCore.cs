@@ -1,10 +1,18 @@
+using AppStartTest;
+using G.Sync.DataContracts;
+using G.Sync.Service.MessageFactory;
+using G.Sync.Service.MessageFactory.Strategy.Enumerators;
 using System.Net.WebSockets;
+using System.Text;
+using System.Text.Json;
 using Utils.NotifyHandler;
 
 public static class Program
 {
     public static void Main(string[] args)
     {
+        var stater = new Stater();
+
         var builder = WebApplication.CreateBuilder(args);
         builder.WebHost.ConfigureKestrel(options =>
         {
@@ -28,13 +36,15 @@ public static class Program
         }
 
         app.UseWebSockets();
+
         app.Map("/gsync", async context =>
         {
             if (context.WebSockets.IsWebSocketRequest)
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+                var ip = context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
 
-                NotifyHandler.Instance.AddClient(webSocket);
+                NotifyHandler.Instance.AddClient(webSocket, ip);
 
                 var buffer = new byte[1024 * 4];
 
@@ -42,6 +52,25 @@ public static class Program
                 {
                     WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
+                    var factory = new MessageHandlerFactory();
+                    var rawText = Encoding.UTF8.GetString(buffer, 0, result.Count);
+
+                    var dto = new MessageDto(rawText);
+
+                    var factoryAction = factory.CreateHandler((HandlerType)dto.HandlerType);
+                    factoryAction.HandleMessage(dto.Message);
+
+                    Console.WriteLine($"=========================== Message received ===========================");
+
+                    var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions
+                    {
+                        WriteIndented = true,
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    });
+
+                    Console.WriteLine(json);
+
+                    Console.WriteLine($"====================================================================");
                     if (result.CloseStatus.HasValue)
                     {
                         await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
@@ -55,6 +84,8 @@ public static class Program
 
         app.MapControllers();
         app.RunAsync();
+
+        stater.Start();
     }
 }
 

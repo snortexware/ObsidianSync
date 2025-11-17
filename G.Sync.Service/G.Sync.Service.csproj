@@ -11,6 +11,7 @@
     <ProjectReference Include="..\G.Sync.Entities\G.Sync.Entities.csproj" />
     <ProjectReference Include="..\G.Sync.Google.Api\G.Sync.Google.Api.csproj" />
     <ProjectReference Include="..\G.Sync.Repository\G.Sync.Repository.csproj" />
+    <ProjectReference Include="..\Utils\G.Sync.Utils.csproj" />
   </ItemGroup>
 
 </Project>

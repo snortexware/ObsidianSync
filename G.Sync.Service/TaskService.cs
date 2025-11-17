@@ -21,8 +21,6 @@ namespace G.Sync.Service
 
             task.UpdateStatusByFileId(fileId, newStatus);
 
-            Console.WriteLine("salvou?" + task.Status);
-
             _taskRepo.Save(task);
         }
     }

@@ -17,7 +17,7 @@ namespace G.Sync.External.IO
 
         public static FileWatcherEventsController Instance => _lazyInstance.Value;
 
-        public void StartWatching(IEnumerable<VaultsEntity> vaults, SettingsEntity settings)
+        public void StartWatching(IEnumerable<VaultsEntity> vaults, SettingsEntity settings, ITaskNotifier notifier)
         {
             StopWatching();
 
@@ -25,7 +25,7 @@ namespace G.Sync.External.IO
             {
                 Console.WriteLine($"Watching vault: {vault.Path}");
 
-                var events = new EventsHandler(settings, vault.Path);
+                var events = new EventsHandler(settings, vault.Id, notifier);
 
                 var watcher = new FileSystemWatcher(vault.Path)
                 {
@@ -43,7 +43,6 @@ namespace G.Sync.External.IO
                 _watchers[vault.Path] = watcher;
             }
         }
-
 
         public void StopWatching()
         {

@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AppStartTest\AppStartTest.csproj" />
     <ProjectReference Include="..\Utils\G.Sync.Utils.csproj" />
   </ItemGroup>
 

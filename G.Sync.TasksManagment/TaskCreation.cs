@@ -7,7 +7,6 @@ public class TaskCreation
 {
     private readonly ITaskRepository _taskRepo;
     private TaskEntity? _task;
-    public bool IsPrepared { get; set; } = false;
     public TaskCreation(ITaskRepository taskRepo)
     {
         _taskRepo = taskRepo;
@@ -18,13 +17,13 @@ public class TaskCreation
         _task = entity;
     }
 
-    public void SaveTask()
+    public (bool isPrepared, long taskId) SaveTask()
     {
         if (_task is null)
             throw new Exception("The data of the task was not found. Call Data() before CreateTask().");
 
-        _taskRepo.Save(_task);
+        var taskId = _taskRepo.Save(_task);
 
-        IsPrepared = true;
+        return (true, taskId);
     }
 }

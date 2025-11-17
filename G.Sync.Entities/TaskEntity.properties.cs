@@ -5,11 +5,12 @@
         public string? FileId { get; private set; }
         public long Id { get; }
         public string Name { get; private set; }
+        public string VaultName { get; private set; }
         public DateTime CreatedAt { get; private set; }
         public TasksStatus Status { get; private set; }
         public TaskTypes TaskType { get; private set; }
 
-        public TaskEntity CreateTask(string fileId, TaskTypes taskType)
+        public TaskEntity CreateTask(string fileId, TaskTypes taskType, string vaultName)
         {
             switch (taskType)
             {
@@ -40,6 +41,7 @@
             this.CreatedAt = DateTime.UtcNow;
             this.Status = TasksStatus.Pending;
             this.FileId = fileId;
+            this.VaultName = vaultName;
 
             return this;
         }

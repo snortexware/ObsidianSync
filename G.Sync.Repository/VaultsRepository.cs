@@ -28,6 +28,12 @@ namespace G.Sync.Repository
             return dbContext.Vaults.AsNoTracking();
         }
 
+        public VaultsEntity? GetById(long id)
+        {
+            var dbContext = new GSyncContext();
+            return dbContext.Vaults.FirstOrDefault(x => x.Id == id);
+        }
+
         public void SaveSettings(VaultsEntity vault)
         {
             using var dbContext = new GSyncContext();

@@ -107,12 +107,10 @@ namespace G.Sync.Google.Api
             var query = $"name = '{fileName}' and '{parentId}' in parents and trashed = false";
             var fields = "files(id)";
 
-            if (_googleDriveService == null)
-                _googleDriveService = new GoogleDriveServiceAdapter(ApiContext.Connection);
+            _googleDriveService ??= new GoogleDriveServiceAdapter(ApiContext.Connection);
 
             var result = _googleDriveService.ListFiles(query, fields);
 
-            Console.WriteLine("existe? " + result.Files.Count);
             return result.Files.Count > 0 ? result.Files[0].Id : string.Empty;
         }
 

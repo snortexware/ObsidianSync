@@ -30,8 +30,7 @@ namespace G.Sync.Repository
             return dbContext.Tasks.Where(x => x.Status == TasksStatus.Pending).ToList();
         }
 
-
-        public void Save(TaskEntity entity)
+        public long Save(TaskEntity entity)
         {
             var dbContext = new GSyncContext();
 
@@ -47,6 +46,8 @@ namespace G.Sync.Repository
             }
 
             dbContext.SaveChanges();
+
+            return existingTask?.Id ?? entity.Id;
         }
     }
 }
