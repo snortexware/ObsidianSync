@@ -1,10 +1,5 @@
 ﻿using G.Sync.Service.MessageFactory.Strategy;
 using G.Sync.Service.MessageFactory.Strategy.Enumerators;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace G.Sync.Service.MessageFactory
 {
@@ -12,7 +7,7 @@ namespace G.Sync.Service.MessageFactory
     {
         private readonly Dictionary<HandlerType, IHandler> _handlers = new()
         {
-            {HandlerType.Vaults, new VaultsHandler()}
+            { HandlerType.Vaults, new VaultsHandler() }
         };
 
         public IHandler CreateHandler(HandlerType type)

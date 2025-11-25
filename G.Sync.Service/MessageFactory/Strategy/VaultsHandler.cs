@@ -11,16 +11,13 @@ namespace G.Sync.Service.MessageFactory.Strategy
 {
     public class VaultsHandler : IHandler
     {
-        public async void HandleMessage(string message)
+        public async void HandleMessage(long taskId)
         {
-            if(string.IsNullOrEmpty(message))
-                throw new Exception("Message is null or empty");
-
             var vaultsRepo = new VaultsRepository();
 
             var vaults = vaultsRepo.GetVaults().ToList();
 
-            await NotifyHandler.Instance.SendVaultsAsync(vaults); ;
+            await NotifyHandler.Instance.SendVaultsAsync(vaults, taskId); ;
         }
     }
 }

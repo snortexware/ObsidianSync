@@ -16,9 +16,9 @@ namespace G.Sync.External.IO
         private readonly string _localRoot;
         private readonly string _driveRoot;
         private readonly DateTime timestamp = DateTime.UtcNow;
-        private readonly string _vaultName;
+        private readonly long _vaultId;
         private readonly TaskQueueRepository _taskQueueRepository = new();
-        private ITaskNotifier _notifier;
+        private readonly ITaskNotifier _notifier;
 
         public EventsHandler(SettingsEntity settings, long vaultId, ITaskNotifier notifier)
         {
@@ -26,7 +26,7 @@ namespace G.Sync.External.IO
             var vaultInfo = ReturnVaultInfo(vaultId);
             _localRoot = vaultInfo.Path;
             _driveRoot = GetOrCreateRootFolder();
-            _vaultName = vaultInfo.Name;
+            _vaultId = vaultId;
             _notifier = notifier;
             DownloadAllFilesAsync(vaultInfo.Path);
         }
@@ -195,7 +195,7 @@ namespace G.Sync.External.IO
             var task = taskRepo.GetByFileId(name) ?? new TaskEntity();
 
             if (task.Id == 0)
-                task.CreateTask(name, type, _vaultName);
+                task.CreateTask(name, type, _vaultId);
 
             var taskCreation = new TaskCreation(taskRepo);
             taskCreation.Data(task);

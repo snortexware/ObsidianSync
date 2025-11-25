@@ -58,17 +58,11 @@ public static class Program
                     var dto = new MessageDto(rawText);
 
                     var factoryAction = factory.CreateHandler((HandlerType)dto.HandlerType);
-                    factoryAction.HandleMessage(dto.Message);
+                    factoryAction.HandleMessage(dto.TaskId);
 
                     Console.WriteLine($"=========================== Message received ===========================");
-
-                    var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions
-                    {
-                        WriteIndented = true,
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    });
-
-                    Console.WriteLine(json);
+                   
+                    Console.WriteLine(dto);
 
                     Console.WriteLine($"====================================================================");
                     if (result.CloseStatus.HasValue)

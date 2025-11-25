@@ -1,24 +1,25 @@
 ﻿using Newtonsoft.Json;
 
-public class MessageDto
+namespace G.Sync.DataContracts
 {
-    [JsonProperty("handlerType")]
-    public int HandlerType { get; private set; }
-
-    [JsonProperty("message")]
-    public string Message { get; private set; }
-
-    // Necessário para System.Text.Json NÃO quebrar
-    public MessageDto() { }
-
-    public MessageDto(string rawText)
+    public record MessageDto(int HandlerType, long TaskId)
     {
-        Console.WriteLine("Raw Text Received: " + rawText);
+        [JsonProperty("handlerType")]
+        public int HandlerType { get; private set; } = HandlerType;
+        [JsonProperty("taskId")]
+        public long TaskId { get; private set; } = TaskId;
 
-        var obj = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageDto>(rawText)
-            ?? throw new InvalidOperationException("Deserialization resulted in null MessageDto");
+        public MessageDto() : this(default, default) { }
 
-        HandlerType = obj.HandlerType;
-        Message = obj.Message;
+        public MessageDto(string rawText) : this(default, default)
+        {
+            Console.WriteLine("Raw Text Received: " + rawText);
+
+            var obj = Newtonsoft.Json.JsonConvert.DeserializeObject<MessageDto>(rawText)
+                ?? throw new InvalidOperationException("Deserialization resulted in null MessageDto");
+
+            HandlerType = obj.HandlerType;
+            TaskId = obj.TaskId;
+        }
     }
 }

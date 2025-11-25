@@ -1,5 +1,6 @@
 ﻿using G.Sync.Entities;
 using G.Sync.Entities.Interfaces;
+using G.Sync.Utils;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.WebSockets;
@@ -25,22 +26,40 @@ namespace Utils.NotifyHandler
 
         private readonly List<WebSocket> _clients = new();
 
-        public void AddClient(WebSocket ws, string ip)
+        public async void AddClient(WebSocket ws, string ip)
         {
-            var isLocal = IPAddress.IsLoopback(IPAddress.Parse(ip));
+            try
+            {
+                var isLocal = IPAddress.IsLoopback(IPAddress.Parse(ip));
 
-            if(!isLocal)
-                throw new UnauthorizedAccessException("Only local connections are allowed.");
+                if (!isLocal)
+                    throw new UnauthorizedAccessException("Only local connections are allowed.");
 
-            Console.WriteLine($"Client connected with ip: {ip}");
-            _clients.Add(ws);
+                _clients.Add(ws);
+                await SendConnectionStatusAsync(true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error adding client: {ex.Message}");
+                await SendConnectionStatusAsync(false);
+                await ws.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Unauthorized", CancellationToken.None);
+            }
         }
 
         public async Task NotifyAsync(TaskEntity task) => await NotifyAsyncBase(task);
-        public async Task SendVaultsAsync(IEnumerable<VaultsEntity> vaults) => await NotifyAsyncBase(vaults);
-
-        public async Task NotifyAsyncBase(object obj)
+        public async Task SendVaultsAsync(IEnumerable<VaultsEntity> vaults, long taskId) => await NotifyAsyncBase(vaults, true, taskId);
+        public async Task NotifyAsyncBase(object obj, bool hanlder = false, long taskId = 0)
         {
+            if (hanlder)
+            {
+                obj = new RespondeDto
+                {
+                    Ok = true,
+                    Data = obj,
+                    TaskId = taskId
+                };
+            }
+
             var json = JsonSerializer.Serialize(obj, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             var buffer = Encoding.UTF8.GetBytes(json);
             var segment = new ArraySegment<byte>(buffer);
@@ -62,6 +81,16 @@ namespace Utils.NotifyHandler
             }
         }
 
+        public async Task SendConnectionStatusAsync(bool ok)
+        {
+            var message = new
+            {
+                type = "connection",
+                ok = ok
+            };
+
+            await NotifyAsyncBase(message);
+        }
 
         public void RemoveClient(WebSocket ws)
         {
