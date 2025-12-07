@@ -1,13 +1,11 @@
-﻿using Dapper;
-using Database.Connection;
-using G.Sync.DataContracts;
+﻿/*
+using Dapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using static G.Sync.DataContracts.VersionDto;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace G.Sync.VersionSystem.Engine
@@ -104,3 +102,4 @@ namespace G.Sync.VersionSystem.Engine
         }
     }
 }
+*/

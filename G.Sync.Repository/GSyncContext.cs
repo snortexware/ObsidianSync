@@ -11,8 +11,7 @@ namespace G.Sync.Repository
         public DbSet<SecurityEntity> Securities { get; set; }
         public DbSet<TaskQueue> TaskQueues { get; set; }
         public DbSet<VaultsEntity> Vaults { get; set; }
-
-        private const string dbPath = @"C:\obsidian-sync\sync.db";
+        private string dbPath = GetDatabasePath();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -38,6 +37,25 @@ namespace G.Sync.Repository
             optionsBuilder.UseSqlite(connection);
         }
 
+        private static string GetDatabasePath()
+        {
+            string basePath;
+
+            if (OperatingSystem.IsWindows())
+                basePath = @"C:\obsidian-sync";
+            else
+                basePath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "obsidian-sync"
+                );
+
+            Directory.CreateDirectory(basePath); // garante que a pasta existe
+
+            return Path.Combine(basePath, "sync.db");
+        }
+
+
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TaskEntity>(entity =>
