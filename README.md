@@ -51,7 +51,7 @@ Recomenda-se criar um plano de arquitetura antes de estender funcionalidades exi
 ```
 ---
 
-Contribuição
+## Contribuição
 
 Contribuições são bem-vindas! Você pode ajudar com:
 
@@ -61,7 +61,7 @@ Exemplos de integração com Obsidian
 Testes automáticos
 Adição de suporte a servidores auto-hospedados
 
-Como contribuir:
+### Como contribuir:
 
 Faça um fork do repositório
 Crie uma branch para sua feature
