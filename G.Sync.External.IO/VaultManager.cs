@@ -19,9 +19,6 @@ namespace G.Sync.External.IO
             throw new PlatformNotSupportedException("Unsupported OS");
         }
 
-        // -----------------------------------------------------------
-        // WINDOWS
-        // -----------------------------------------------------------
         private static ObsidianVaultConfigDto ReadWindowsJson()
         {
             var path = Path.Combine(
@@ -38,9 +35,7 @@ namespace G.Sync.External.IO
                    ?? throw new InvalidDataException("Invalid Obsidian JSON.");
         }
 
-        // -----------------------------------------------------------
-        // LINUX (Flatpak only)
-        // -----------------------------------------------------------
+        // Only flatpack on linux by now.
         private static ObsidianVaultConfigDto ReadLinuxFlatpakJson()
         {
             string home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);

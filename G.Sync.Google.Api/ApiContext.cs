@@ -30,6 +30,7 @@ namespace G.Sync.Google.Api
             Initialize(_json);
         }
 
+        // TODO: Wtf is this bro.
         public static void SetJson(string json)
         {
             _json = json;

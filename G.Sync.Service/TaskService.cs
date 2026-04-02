@@ -11,6 +11,8 @@ namespace G.Sync.Service
     {
         private readonly ITaskRepository _taskRepo = taskRepo;
 
+
+        // TODO: Validar racing condition.
         public void UpdateTaskStatus(string fileId, TasksStatus newStatus)
         {
             Console.WriteLine(fileId + newStatus.ToString());

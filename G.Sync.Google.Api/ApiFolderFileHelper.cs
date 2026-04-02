@@ -9,11 +9,13 @@ using FileS = System.IO.File;
 
 namespace G.Sync.Google.Api
 {
+    // TODO: Move all methods to a factory, extract repetitive code
     public abstract class ApiFolderFileHelper
     {
         private IGoogleDriveService _googleDriveService;
         private ISettingsEntity _settings;
 
+        // TODO: Create a IoC container.
         public void Inject(IGoogleDriveService _drive, ISettingsEntity settings)
         {
             _settings = settings;

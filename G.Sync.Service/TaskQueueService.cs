@@ -23,6 +23,7 @@ namespace G.Sync.Service
             }
         }
 
+        // TODO: Mapear em dicionário e criar fábrica para FolderService
         private async void ProcessTaskQueuesInternal()
         {
             var taskQueues = _repository.GetTaskQueues()?.ToList();
@@ -86,6 +87,7 @@ namespace G.Sync.Service
             }
         }
 
+        // TODO: Mover para helper
         private static bool WaitForFileReady(string path, int maxRetries = FileLockMaxRetries, int delayMs = FileLockDelayMs)
         {
             for (int attempt = 1; attempt <= maxRetries; attempt++)
@@ -98,6 +100,7 @@ namespace G.Sync.Service
             return false;
         }
 
+        // TODO: Mover para helper
         private static bool IsFileLocked(string path)
         {
             if (Helpers.IsFileInUse(path))
