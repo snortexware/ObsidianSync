@@ -1,4 +1,4 @@
-# <img width="200" height="200" alt="Logo ObsidianSync" src="https://github.com/user-attachments/assets/41bb61a6-bf5b-4032-8471-c00e97a3f8ee" /> ObsidianSync
+# <img width="50" height="50" alt="Logo ObsidianSync" src="https://github.com/user-attachments/assets/41bb61a6-bf5b-4032-8471-c00e97a3f8ee" /> ObsidianSync
 
 **ObsidianSync** é um projeto de sincronização para usuários do Obsidian que desejam manter seus cofres sincronizados entre dispositivos.  
 Ele serve como base para criar soluções próprias de sync — seja auto-hospedado ou integrado a servidores de sincronização existentes.
