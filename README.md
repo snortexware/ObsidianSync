@@ -48,6 +48,8 @@ Compile o projeto
 Teste os módulos de sincronização e componentes de integração
 
 Recomenda-se criar um plano de arquitetura antes de estender funcionalidades existentes, garantindo sync seguro e resiliente.
+```
+---
 
 Contribuição
 
