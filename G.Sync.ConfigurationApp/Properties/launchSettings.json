@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "G.Sync.ConfigurationApp (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "G.Sync.ConfigurationApp (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
