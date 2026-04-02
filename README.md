@@ -1,17 +1,16 @@
-#<img width="500" height="500" alt="Gemini_Generated_Image_veoqdfveoqdfveoq-removebg-preview" src="https://github.com/user-attachments/assets/41bb61a6-bf5b-4032-8471-c00e97a3f8ee" /> ObsidianSync
+# <img width="200" height="200" alt="Logo ObsidianSync" src="https://github.com/user-attachments/assets/41bb61a6-bf5b-4032-8471-c00e97a3f8ee" /> ObsidianSync
 
+**ObsidianSync** é um projeto de sincronização para usuários do Obsidian que desejam manter seus cofres sincronizados entre dispositivos.  
+Ele serve como base para criar soluções próprias de sync — seja auto-hospedado ou integrado a servidores de sincronização existentes.
 
-**ObsidianSync** é um projeto de sincronização voltado para usuários do Obsidian que querem manter seus cofres sincronizados entre dispositivos.  
-Ele serve como base ou ponto de partida para criar sua própria solução de sync — seja auto-hospedado ou integrado a servidores de sincronização existentes.
-
-> Obs.: Este repositório ainda não contém descrição detalhada no GitHub — este README foi criado para explicar melhor o propósito e ajudar colaboradores a entender e contribuir com o projeto.
+> Obs.: Este repositório ainda não possui descrição detalhada no GitHub. Este README foi criado para explicar melhor o propósito e facilitar contribuições.
 
 ---
 
 ## Sobre
 
-Este projeto contém código para implementar ou experimentar estratégias de **sincronização de notas do Obsidian** entre ambientes diferentes (ex.: desktop, servidor, mobile).  
-Sincronização de notas no Obsidian normalmente não é trivial, pois envolve atualizar arquivos Markdown de forma consistente e segura. Embora serviços oficiais como o Obsidian Sync existam, soluções customizadas oferecem mais controle e podem ser gratuitas ou privadas em servidores próprios.  
+Este projeto contém código para implementar ou experimentar estratégias de **sincronização de notas do Obsidian** entre diferentes ambientes (desktop, servidor, mobile).  
+Sincronizar notas no Obsidian envolve atualizar arquivos Markdown de forma consistente e segura. Embora o Obsidian Sync oficial exista, soluções customizadas oferecem mais controle e podem ser gratuitas ou privadas.
 
 ---
 
@@ -19,32 +18,32 @@ Sincronização de notas no Obsidian normalmente não é trivial, pois envolve a
 
 - Sincronização entre dispositivos para cofres Obsidian  
 - Controle de versões de arquivos  
-- Estruturas para servidor + cliente  
+- Estrutura para servidor + cliente  
 - Possível integração com plugins do Obsidian  
 - APIs e utilitários para estender o sync  
 
-*(Dependendo de implementação futura — o projeto pode ainda não ter todos os recursos prontos.)*
+> Dependendo da implementação, o projeto pode não ter todas as funcionalidades prontas.
 
 ---
 
 ## Como começar
 
-**Requisitos:**
+### Requisitos
 
 - .NET (versão compatível com o projeto)  
-- Ferramentas de desenvolvimento (Visual Studio, VS Code etc.)  
+- Visual Studio ou VS Code  
 - Obsidian instalado para testar integração de plugins
 
-**Passos básicos:**
+### Passos
 
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/snortexware/ObsidianSync.git
+```bash
+# Clone o repositório
+git clone https://github.com/snortexware/ObsidianSync.git
 Abra a solução ObsidianSync.sln no Visual Studio
 Compile o projeto
 Teste os módulos de sincronização e componentes de integração
 
-É recomendado criar um plano de arquitetura antes de estender funcionalidades existentes, especialmente para sync seguro e resiliente.
+Recomenda-se criar um plano de arquitetura antes de estender funcionalidades existentes, garantindo sync seguro e resiliente.
 
 Contribuição
 
@@ -59,6 +58,5 @@ Adição de suporte a servidores auto-hospedados
 Como contribuir:
 
 Faça um fork do repositório
-Crie uma branch com sua feature
+Crie uma branch para sua feature
 Envie um Pull Request
-
