@@ -6,10 +6,16 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain-layer", "Domain-layer", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation-layer", "Presentation-layer", "{F0B11867-56DA-4FB5-B66B-DA2510C1C69A}"
+	ProjectSection(SolutionItems) = preProject
+		google_oauth.json = google_oauth.json
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application-layer", "Application-layer", "{3B4B3FDC-E080-4F88-9925-ACD46673C5E9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure-layer", "Infrastructure-layer", "{6464EE6D-8F2A-47D7-A88D-96EA99EB7985}"
+	ProjectSection(SolutionItems) = preProject
+		google_oauth.json = google_oauth.json
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{6A6ADEBB-19A2-483B-A1B1-35DF3A4CFD73}"
 EndProject
@@ -36,6 +42,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppStartTest", "AppStartTest\AppStartTest.csproj", "{347FF3DB-B3C5-48A9-9641-E1519F1318BC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G.Sync.ConfigurationApp", "G.Sync.ConfigurationApp\G.Sync.ConfigurationApp.csproj", "{41466367-D8C0-4060-84F1-270D04EFD1D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "G.Sync.IoC", "G.Sync.IoC\G.Sync.IoC.csproj", "{8FB6FC49-DF22-44EB-92B5-14F2F0ACB0BB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,6 +101,10 @@ Global
 		{41466367-D8C0-4060-84F1-270D04EFD1D0}.Release|Any CPU.ActiveCfg = Release|x64
 		{41466367-D8C0-4060-84F1-270D04EFD1D0}.Release|Any CPU.Build.0 = Release|x64
 		{41466367-D8C0-4060-84F1-270D04EFD1D0}.Release|Any CPU.Deploy.0 = Release|x64
+		{8FB6FC49-DF22-44EB-92B5-14F2F0ACB0BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FB6FC49-DF22-44EB-92B5-14F2F0ACB0BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FB6FC49-DF22-44EB-92B5-14F2F0ACB0BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FB6FC49-DF22-44EB-92B5-14F2F0ACB0BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -110,6 +122,7 @@ Global
 		{16853ECA-0AEE-4EE4-9F98-26CE3684A2CA} = {6464EE6D-8F2A-47D7-A88D-96EA99EB7985}
 		{347FF3DB-B3C5-48A9-9641-E1519F1318BC} = {3B4B3FDC-E080-4F88-9925-ACD46673C5E9}
 		{41466367-D8C0-4060-84F1-270D04EFD1D0} = {F0B11867-56DA-4FB5-B66B-DA2510C1C69A}
+		{8FB6FC49-DF22-44EB-92B5-14F2F0ACB0BB} = {6464EE6D-8F2A-47D7-A88D-96EA99EB7985}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8B25F4CC-2012-4F86-ADC2-039E5EAB6C98}

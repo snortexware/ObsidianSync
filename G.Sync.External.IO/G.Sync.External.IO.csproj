@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\G.Sync.Entities\G.Sync.Entities.csproj" />
     <ProjectReference Include="..\G.Sync.Google.Api\G.Sync.Google.Api.csproj" />
+    <ProjectReference Include="..\G.Sync.IoC\G.Sync.IoC.csproj" />
     <ProjectReference Include="..\G.Sync.Repository\G.Sync.Repository.csproj" />
     <ProjectReference Include="..\G.Sync.TasksManagment\G.Sync.TasksManagment.csproj" />
   </ItemGroup>

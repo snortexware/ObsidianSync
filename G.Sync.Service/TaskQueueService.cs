@@ -1,21 +1,22 @@
 ﻿using G.Sync.Common;
+using G.Sync.Entities.Interfaces;
 using G.Sync.Repository;
 
 namespace G.Sync.Service
 {
-    public class TaskQueueService
+    public class TaskQueueService(IFolderFileProcess folderService, ITaskQueueRepository taskQueueRepository) : ITaskQueueService
     {
-        private readonly TaskQueueRepository _repository = new();
-        private readonly FolderFileService _folderService = new();
-
-        private const int FileLockMaxRetries = 10;
+        private readonly ITaskQueueRepository _repository = taskQueueRepository ?? throw new ArgumentNullException(nameof(taskQueueRepository));
+        private readonly IFolderFileProcess _folderService = folderService ?? throw new ArgumentNullException(nameof(folderService));
+        private const int FileLockMaxRetries = 1;
         private const int FileLockDelayMs = 500;
 
-        public async void ProcessTaskQueues()
+        public async Task ProcessTaskQueues()
         {
             try
             {
-                ProcessTaskQueuesInternal();
+                Console.WriteLine("Processing queue...");
+                await ProcessTaskQueuesInternal();
             }
             catch (Exception ex)
             {
@@ -24,7 +25,7 @@ namespace G.Sync.Service
         }
 
         // TODO: Mapear em dicionário e criar fábrica para FolderService
-        private async void ProcessTaskQueuesInternal()
+        private async Task ProcessTaskQueuesInternal()
         {
             var taskQueues = _repository.GetTaskQueues()?.ToList();
 
@@ -33,6 +34,14 @@ namespace G.Sync.Service
             foreach (var taskQueue in taskQueues)
             {
                 var realPath = taskQueue.FilePath;
+
+                if (!File.Exists(realPath))
+                {
+                    _repository.RemoveTaskQueue(taskQueue.Id);
+
+                    Console.WriteLine($"Removing from the queue because it doe.");
+                    continue;
+                }
 
                 if (!WaitForFileReady(realPath) || !(await Helpers.HasFileSettledAsync(realPath)))
                 {
@@ -46,25 +55,25 @@ namespace G.Sync.Service
                     switch (taskQueue.Type)
                     {
                         case Entities.TaskEntity.TaskTypes.ChangeFile:
-                            _folderService.UpdateFile(taskQueue.LocalRoot, realPath, taskQueue.DriveRoot);
+                            await _folderService.UpdateFileAsync(taskQueue.LocalRoot, realPath, taskQueue.DriveRoot);
                             success = true;
                             break;
 
                         case Entities.TaskEntity.TaskTypes.UploadFile:
-                            _folderService.UploadFile(taskQueue.LocalRoot, realPath, taskQueue.DriveRoot);
+                            await _folderService.UploadFileAsync(taskQueue.LocalRoot, realPath, taskQueue.DriveRoot);
                             success = true;
                             break;
 
                         case Entities.TaskEntity.TaskTypes.CreateFile:
-                            _folderService.UploadFile(taskQueue.LocalRoot, realPath, taskQueue.DriveRoot);
+                            await _folderService.UploadFileAsync(taskQueue.LocalRoot, realPath, taskQueue.DriveRoot);
                             success = true;
                             break;
                         case Entities.TaskEntity.TaskTypes.DeleteFile:
-                            _folderService.DeleteFile(taskQueue.LocalRoot, realPath, taskQueue.DriveRoot);
+                            await _folderService.DeleteFileAsync(taskQueue.LocalRoot, realPath, taskQueue.DriveRoot);
                             success = true;
                             break;
                         case Entities.TaskEntity.TaskTypes.RenameFile:
-                            _folderService.RenameFile(taskQueue.LocalRoot, taskQueue.OldPath, taskQueue.NewPath, taskQueue.DriveRoot);
+                            await _folderService.RenameFileAsync(taskQueue.LocalRoot, taskQueue.OldPath, taskQueue.NewPath, taskQueue.DriveRoot);
                             success = true;
                             break;
                     }

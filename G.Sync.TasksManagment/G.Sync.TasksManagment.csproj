@@ -17,10 +17,4 @@
     <ProjectReference Include="..\G.Sync.Service\G.Sync.Service.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Database.Connection">
-      <HintPath>..\Database.Connection\obj\Release\net8.0\ref\Database.Connection.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>

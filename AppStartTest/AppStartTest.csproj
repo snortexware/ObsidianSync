@@ -2,13 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\G.Sync.External.IO\G.Sync.External.IO.csproj" />
+    <ProjectReference Include="..\G.Sync.IoC\G.Sync.IoC.csproj" />
     <ProjectReference Include="..\Utils\G.Sync.Utils.csproj" />
   </ItemGroup>
 

@@ -3,21 +3,19 @@ using G.Sync.Entities.Interfaces;
 using G.Sync.Repository;
 using System;
 using System.IO;
+using System.Collections.Generic;
+using G.Sync.IoC;
 
 namespace G.Sync.External.IO
 {
-    public class FileWatcherEventsController
+    public class FileWatcherEventsController : IFileWatcher
     {
-        private static readonly Lazy<FileWatcherEventsController> _lazyInstance = new Lazy<FileWatcherEventsController>(() => new FileWatcherEventsController());
-        private FileSystemWatcher? _fileWatcher;
-        private EventsHandler? _events;
         private readonly Dictionary<string, FileSystemWatcher> _watchers = [];
+        private readonly Dictionary<string, IEventsHandler> _events = [];
 
-        private FileWatcherEventsController() { }
+        public FileWatcherEventsController() { }
 
-        public static FileWatcherEventsController Instance => _lazyInstance.Value;
-
-        public void StartWatching(IEnumerable<VaultsEntity> vaults, SettingsEntity settings, ITaskNotifier notifier)
+        public async void StartWatching(IEnumerable<VaultsEntity> vaults, SettingsEntity settings)
         {
             StopWatching();
 
@@ -25,7 +23,9 @@ namespace G.Sync.External.IO
             {
                 Console.WriteLine($"Watching vault: {vault.Path}");
 
-                var events = new EventsHandler(settings, vault.Id, notifier);
+                var events = BusinessComponent.CreateInstance<IEventsHandler>();
+
+                await events.InitializeAsync(vault.Id, settings);
 
                 var watcher = new FileSystemWatcher(vault.Path)
                 {
@@ -41,24 +41,28 @@ namespace G.Sync.External.IO
                 watcher.Changed += events.ChangedEventHandler;
 
                 _watchers[vault.Path] = watcher;
+                _events[vault.Path] = events;
             }
         }
 
         public void StopWatching()
         {
-            if (_fileWatcher != null && _events != null)
+            foreach (var path in _watchers.Keys)
             {
-                _fileWatcher.EnableRaisingEvents = false;
+                var watcher = _watchers[path];
+                var events = _events[path];
 
-                _fileWatcher.Created -= _events.CreatedEventHandler;
-                _fileWatcher.Deleted -= _events.DeletedEventHandler;
-                _fileWatcher.Renamed -= _events.RenamedEventHandler;
-                _fileWatcher.Changed -= _events.ChangedEventHandler;
+                watcher.EnableRaisingEvents = false;
+                watcher.Created -= events.CreatedEventHandler;
+                watcher.Deleted -= events.DeletedEventHandler;
+                watcher.Renamed -= events.RenamedEventHandler;
+                watcher.Changed -= events.ChangedEventHandler;
 
-                _fileWatcher.Dispose();
-                _fileWatcher = null;
-                _events = null;
+                watcher.Dispose();
             }
+
+            _watchers.Clear();
+            _events.Clear();
         }
     }
 }

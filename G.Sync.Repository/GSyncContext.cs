@@ -11,7 +11,8 @@ namespace G.Sync.Repository
         public DbSet<SecurityEntity> Securities { get; set; }
         public DbSet<TaskQueue> TaskQueues { get; set; }
         public DbSet<VaultsEntity> Vaults { get; set; }
-        private string dbPath = GetDatabasePath();
+
+        private readonly string dbPath = GetDatabasePath();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -39,23 +40,20 @@ namespace G.Sync.Repository
 
         private static string GetDatabasePath()
         {
-            string basePath;
 
-            if (OperatingSystem.IsWindows())
-                basePath = @"C:\obsidian-sync";
-            else
-                basePath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "obsidian-sync"
-                );
+            string appDataPath = Environment.OSVersion.Platform switch
+            {
+                PlatformID.Win32NT => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ObsidianSync"),
+                PlatformID.Unix => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".ObsidianSync"),
+                _ => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ObsidianSync")
+            };
 
-            Directory.CreateDirectory(basePath); // garante que a pasta existe
+            if (!Directory.Exists(appDataPath))
+                Directory.CreateDirectory(appDataPath);
 
-            return Path.Combine(basePath, "sync.db");
+            return Path.Combine(appDataPath, "sync.db");
         }
 
-
-        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TaskEntity>(entity =>

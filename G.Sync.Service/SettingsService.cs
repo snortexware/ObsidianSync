@@ -5,6 +5,10 @@ namespace G.Sync.Service
 {
     public interface ISettingsRepository
     {
+        public SettingsEntity? GetSettings();
+        public void CreateDefaultSettings();
+        public void UpdateFolder(string folder);
+
         SettingsEntity Get();
         void Save(SettingsEntity settings);
     }

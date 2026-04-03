@@ -1,54 +1,100 @@
 ﻿using G.Sync.Entities;
+using G.Sync.Entities.Interfaces;
 using G.Sync.External.IO;
 using G.Sync.External.IO.Quartz;
 using G.Sync.Google.Api;
 using G.Sync.Repository;
-using Utils.NotifyHandler;
+using Ninject;
+using G.Sync.IoC;
+using G.Sync.Utils;
 
 namespace AppStartTest
 {
-    public class Stater
+    public class Stater : IStarter
     {
-        public async void Start()
+        [Inject]
+        public IVaultsRepository VaultRepo { get; set; }
+
+        [Inject]
+        public ISettingsRepository SettingsRepo { get; set; }
+
+        [Inject]
+        public IQueueStarter QueueStarter { get; set; }
+
+        [Inject]
+        public IFileWatcher FileWatcher { get; set; }
+
+        [Inject]
+        public IDatabaseInitializer DatabaseInitializer { get; set; }
+
+        public async Task StartAsync()
         {
-            var rawVaults = VaultManager.GetAllActiveVaults();
-
-            var vaultRepo = new VaultsRepository();
-
-            foreach (var vault in rawVaults.Vaults)
+            try
             {
-                var vaultInfo = vault.Value;
-                var vaultEntity =
-                    new VaultsEntity(vaultInfo.Path, vaultInfo.Timestamp, vaultInfo.Open, vault.Key);
 
-                vaultRepo.CreateVault(vaultEntity);
+                DatabaseInitializer.Initialize();
+
+                var rawVaults = VaultManager.GetAllActiveVaults();
+
+                foreach (var vault in rawVaults.Vaults)
+                {
+                    var vaultEntity = new VaultsEntity(
+                        vault.Value.Path,
+                        vault.Value.Timestamp,
+                        vault.Value.Open,
+                        vault.Key
+                    );
+
+                    VaultRepo.CreateVault(vaultEntity);
+                }
+
+                var vaults = VaultRepo.GetVaults();
+
+                var settings = SettingsRepo.GetSettings();
+
+                if (settings is null)
+                {
+                    settings = new SettingsEntity().CreateSettings(
+                        "ObsidianSync",
+                        GetDefaultLocalFolder(),
+                        GetDefaultDrivePath()
+                    );
+
+                    SettingsRepo.SaveSettings(settings);
+                }
+
+                var json = File.ReadAllText(GetClientSecretPath());
+
+                await QueueStarter.StartQueueProcessor();
+
+                FileWatcher.StartWatching(vaults, settings);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.InnerException.Message);
+                throw;
             }
 
-            var vaults = vaultRepo.GetVaults();
+            await Task.Delay(Timeout.Infinite);
+        }
 
-            var settings = new SettingsEntity();
+        private string GetDefaultDrivePath() => Path.Combine(GetAppDataFolder(), "ObsidianSync");
+        private string GetDefaultLocalFolder() => "obsidian-sync";
 
-            var newSettings = settings.CreateSettings("ObsidianSync", "C:\\obsidian-sync", "obsidian-sync");
+        private string GetAppDataFolder()
+        {
+            string appName = "ObsidianSync";
+            return Environment.OSVersion.Platform switch
+            {
+                PlatformID.Win32NT => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), appName),
+                PlatformID.Unix => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), $".{appName}"),
+                _ => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), appName)
+            };
+        }
 
-            var settingsRepo = new SettingsRepository();
-
-            settingsRepo.SaveSettings(newSettings);
-
-            var json = File.ReadAllText("C:\\Users\\lucas\\OneDrive\\Documentos\\client_secret.json");
-
-            ApiContext.SetJson(json);
-
-            var queueStarter = new QueueStarter();
-            await queueStarter.StartQueueProcessor();
-
-            var notifier = NotifyHandler.Instance;
-
-            FileWatcherEventsController.Instance.StartWatching(vaults, newSettings, notifier);
-
-            Thread.Sleep(100000000);
-
+        private string GetClientSecretPath()
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "client_secret.json");
         }
     }
-
 }
-

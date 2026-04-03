@@ -45,6 +45,9 @@ namespace G.Sync.Repository
         {
             using var context = new GSyncContext();
             context.TaskQueues.Add(taskQueue);
+
+            Console.WriteLine("Adicionado tarefa na fila...");
+
             context.SaveChanges();
         }
     }

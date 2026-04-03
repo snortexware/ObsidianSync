@@ -364,3 +364,5 @@ FodyWeavers.xsd
 /.idea/.idea.ObsidianSync/.idea
 /AvaloniaApplication1
 /Google.Api.MainProcess/CryptoCore.fs
+/google_oauth.json
+/G.Sync.Google.Api/google_oauth.json

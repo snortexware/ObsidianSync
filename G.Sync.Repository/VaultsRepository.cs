@@ -1,4 +1,5 @@
 ﻿using G.Sync.Entities;
+using G.Sync.Entities.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace G.Sync.Repository
 {
-    public class VaultsRepository
+    public class VaultsRepository : IVaultsRepository
     {
-        public void CreateVault(VaultsEntity vault)
+        public async void CreateVault(VaultsEntity vault)
         {
             using var dbContext = new GSyncContext();
 

@@ -1,23 +1,23 @@
-﻿using G.Sync.Repository;
+﻿using G.Sync.Entities.Interfaces;
 using G.Sync.Service.MessageFactory.Strategy.Enumerators;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Utils.NotifyHandler;
+using Ninject;
 
 namespace G.Sync.Service.MessageFactory.Strategy
 {
     public class VaultsHandler : IHandler
     {
-        public async void HandleMessage(long taskId)
+        [Inject] public IVaultsRepository VaultsRepository { get; set; }
+        [Inject] public ITaskNotifier TaskNotifier { get; set; }
+
+        public HandlerType Type => HandlerType.Vaults;
+
+        public async Task HandleAsync(object data)
         {
-            var vaultsRepo = new VaultsRepository();
+            var vaults = VaultsRepository.GetVaults().ToList();
 
-            var vaults = vaultsRepo.GetVaults().ToList();
+            var taskId = data is long id ? id : 0;
 
-            await NotifyHandler.Instance.SendVaultsAsync(vaults, taskId); ;
+            await TaskNotifier.SendVaultsAsync(vaults, taskId);
         }
     }
 }

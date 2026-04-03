@@ -1,87 +1,112 @@
-﻿using G.Sync.Google.Interfaces;
+﻿using G.Sync.Google.Api.Interfaces;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
 using Google.Apis.Upload;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using File = Google.Apis.Drive.v3.Data.File;
+
 namespace G.Sync.Google.Api
 {
     public class GoogleDriveServiceAdapter : IGoogleDriveService
     {
-        private readonly DriveService _service;
+        private readonly IGoogleDriveContext _context;
 
-        public GoogleDriveServiceAdapter(DriveService service)
+        private DriveService? _service;
+
+        public GoogleDriveServiceAdapter(IGoogleDriveContext context)
         {
-            _service = service;
+            _context = context;
         }
 
-        public FileList ListFiles(string query, string fields, string spaces = "drive")
+        private async Task<DriveService> GetServiceAsync()
         {
-            var request = _service.Files.List();
+            if (_service != null)
+                return _service;
+
+            _service = await _context.GetConnectionAsync();
+            return _service;
+        }
+
+        public async Task<FileList> ListFilesAsync(string query, string fields, string spaces = "drive")
+        {
+            var service = await GetServiceAsync();
+
+            var request = service.Files.List();
             request.Q = query;
             request.Fields = fields;
             request.Spaces = spaces;
-            return request.Execute();
+
+            return await request.ExecuteAsync();
         }
 
-        public FileList ListFilesAsync(string query, string fields, string spaces = "drive")
+        public async Task<File> CreateFolderAsync(File folderMeta, string fields)
         {
-            var request = _service.Files.List();
-            request.Q = query;
+            var service = await GetServiceAsync();
+
+            var request = service.Files.Create(folderMeta);
             request.Fields = fields;
-            request.Spaces = spaces;
-            return request.ExecuteAsync().Result;
+
+            return await request.ExecuteAsync();
         }
 
-        public File CreateFolder(File folderMeta, string fields)
+        public async Task<(File, IUploadProgress)> UploadFileAsync(string parentId, string localPath)
         {
-            var createRequest = _service.Files.Create(folderMeta);
-            createRequest.Fields = fields;
-            return createRequest.Execute();
+            var service = await GetServiceAsync();
+
+            var meta = new File
+            {
+                Name = Path.GetFileName(localPath),
+                Parents = new[] { parentId }
+            };
+
+            using var stream = new FileStream(localPath, FileMode.Open, FileAccess.Read);
+
+            var request = service.Files.Create(meta, stream, "application/octet-stream");
+            request.Fields = "id, name";
+
+            var progress = await request.UploadAsync();
+
+            return (request.ResponseBody, progress);
         }
 
-        public (File responseBody, IUploadProgress progress) UploadFile(string parentId, string localPath)
+        public async Task<(File, IUploadProgress)> UpdateFileAsync(string id, string localPath)
         {
-            var meta = new File { Name = Path.GetFileName(localPath), Parents = new[] { parentId } };
-            using var stream = new FileStream(localPath, FileMode.Open);
-            var req = _service.Files.Create(meta, stream, "application/octet-stream");
-            req.Fields = "id, name";
-            var progres = req.Upload();
-            return (req.ResponseBody, progres);
+            var service = await GetServiceAsync();
+
+            using var stream = new FileStream(localPath, FileMode.Open, FileAccess.Read);
+
+            var request = service.Files.Update(null, id, stream, "application/octet-stream");
+            request.Fields = "id, name";
+
+            var progress = await request.UploadAsync();
+
+            return (request.ResponseBody, progress);
         }
 
-        public (File responseBody, IUploadProgress progress) UpdateFile(string id, string localPath)
+        public async Task DeleteFileAsync(string id)
         {
-            using var stream = new FileStream(localPath, FileMode.Open);
-            var req = _service.Files.Update(null, id, stream, "application/octet-stream");
-            req.Fields = "id, name";
-            var progress = req.Upload();
-            return (req.ResponseBody, progress);
+            var service = await GetServiceAsync();
+            await service.Files.Delete(id).ExecuteAsync();
         }
 
-        public void DeleteFile(string id)
+        public async Task<File> RenameFileAsync(string id, string newName)
         {
-            _service.Files.Delete(id).Execute();
-        }
+            var service = await GetServiceAsync();
 
-        public File RenameFile(string id, string newName)
-        {
             var meta = new File { Name = newName };
-            var req = _service.Files.Update(meta, id);
-            req.Fields = "id, name";
-            return req.Execute();
+            var request = service.Files.Update(meta, id);
+            request.Fields = "id, name";
+
+            return await request.ExecuteAsync();
         }
 
-        public async void DownloadFile(string localTarget, string id)
+        public async Task DownloadFileAsync(string localTarget, string id)
         {
+            var service = await GetServiceAsync();
+
             using var stream = new FileStream(localTarget, FileMode.Create, FileAccess.Write);
-            var getReq = _service.Files.Get(id);
-            await getReq.DownloadAsync(stream);
+
+            var request = service.Files.Get(id);
+            await request.DownloadAsync(stream);
         }
     }
-
 }

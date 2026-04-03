@@ -7,8 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="google_oauth.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="google_oauth.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Google.Apis.Core" Version="1.70.0" />
     <PackageReference Include="Google.Apis.Drive.v3" Version="1.69.0.3783" />
+    <PackageReference Include="Ninject" Version="3.3.6" />
     <PackageReference Include="Quartz" Version="3.15.0" />
   </ItemGroup>
 

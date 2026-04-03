@@ -1,4 +1,5 @@
-﻿using System;
+﻿using G.Sync.Service.MessageFactory.Strategy.Enumerators;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace G.Sync.Service.MessageFactory.Strategy
 {
     public interface IHandler
     {
-        public void HandleMessage(long taskId);
+        HandlerType Type { get; }
+        Task HandleAsync(object data);
     }
 }

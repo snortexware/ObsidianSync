@@ -1,22 +1,24 @@
 ﻿using Google.Apis.Drive.v3.Data;
 using Google.Apis.Upload;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using File = Google.Apis.Drive.v3.Data.File;
-namespace G.Sync.Google.Interfaces
+
+namespace G.Sync.Google.Api.Interfaces
 {
     public interface IGoogleDriveService
     {
-        FileList ListFiles(string query, string fields, string spaces = "drive");
-        FileList ListFilesAsync(string query, string fields, string spaces = "drive");
-        File CreateFolder(File folderMeta, string fields);
-        (File responseBody, IUploadProgress  progress) UploadFile(string parentId, string localPath);
-        (File responseBody, IUploadProgress  progress) UpdateFile(string id, string localPath);
-        void DeleteFile(string id);
-        File RenameFile(string id, string newName);
-        void DownloadFile(string localTarget, string id);
+        Task<FileList> ListFilesAsync(string query, string fields, string spaces = "drive");
+
+        Task<File> CreateFolderAsync(File folderMeta, string fields);
+
+        Task<(File responseBody, IUploadProgress progress)> UploadFileAsync(string parentId, string localPath);
+
+        Task<(File responseBody, IUploadProgress progress)> UpdateFileAsync(string id, string localPath);
+
+        Task DeleteFileAsync(string id);
+
+        Task<File> RenameFileAsync(string id, string newName);
+
+        Task DownloadFileAsync(string localTarget, string id);
     }
 }

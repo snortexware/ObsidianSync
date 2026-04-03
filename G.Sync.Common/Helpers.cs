@@ -22,7 +22,7 @@ namespace G.Sync.Common
 
             var lastWriteIsLess = (now - lastWrite).Seconds;
 
-            var fiveSeconds = TimeSpan.FromSeconds(3).Seconds;
+            var fiveSeconds = TimeSpan.FromSeconds(10).Seconds;
 
             if (lastWriteIsLess < fiveSeconds)
             {
