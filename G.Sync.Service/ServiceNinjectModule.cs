@@ -17,6 +17,7 @@ namespace G.Sync.Service
             Bind<IHandler>().To<VaultsHandler>();
             Bind<IMessageHandlerFactory>().To<MessageHandlerFactory>();
             Bind<ITaskQueueService>().To<TaskQueueService>();
+            Bind<IGSyncAppContextProxy>().To<GSyncAppContextProxy>().InSingletonScope();
         }
     }
 }

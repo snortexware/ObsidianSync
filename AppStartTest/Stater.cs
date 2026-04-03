@@ -7,6 +7,7 @@ using G.Sync.Repository;
 using Ninject;
 using G.Sync.IoC;
 using G.Sync.Utils;
+using G.Sync.Common;
 
 namespace AppStartTest
 {
@@ -15,8 +16,6 @@ namespace AppStartTest
         [Inject]
         public IVaultsRepository VaultRepo { get; set; }
 
-        [Inject]
-        public ISettingsRepository SettingsRepo { get; set; }
 
         [Inject]
         public IQueueStarter QueueStarter { get; set; }
@@ -27,11 +26,26 @@ namespace AppStartTest
         [Inject]
         public IDatabaseInitializer DatabaseInitializer { get; set; }
 
+        [Inject]
+        public IGSyncAppContext GSyncAppContext { get; set; }
+
+        private ISettingsEntity _settings { get; set; }
+
+        public ISettingsEntity Settings
+        {
+            get
+            {
+                if (_settings is not null)
+                    return _settings;
+
+                return GSyncAppContext.GetAppSettings();
+            }
+        }
+
         public async Task StartAsync()
         {
             try
             {
-
                 DatabaseInitializer.Initialize();
 
                 var rawVaults = VaultManager.GetAllActiveVaults();
@@ -50,24 +64,14 @@ namespace AppStartTest
 
                 var vaults = VaultRepo.GetVaults();
 
-                var settings = SettingsRepo.GetSettings();
-
-                if (settings is null)
-                {
-                    settings = new SettingsEntity().CreateSettings(
-                        "ObsidianSync",
-                        GetDefaultLocalFolder(),
-                        GetDefaultDrivePath()
-                    );
-
-                    SettingsRepo.SaveSettings(settings);
-                }
-
                 var json = File.ReadAllText(GetClientSecretPath());
 
                 await QueueStarter.StartQueueProcessor();
 
-                FileWatcher.StartWatching(vaults, settings);
+                if (Settings is null)
+                    throw new Exception("Settings are empty");
+
+                FileWatcher.StartWatching(vaults, Settings);
             }
             catch (Exception ex)
             {
@@ -78,19 +82,6 @@ namespace AppStartTest
             await Task.Delay(Timeout.Infinite);
         }
 
-        private string GetDefaultDrivePath() => Path.Combine(GetAppDataFolder(), "ObsidianSync");
-        private string GetDefaultLocalFolder() => "obsidian-sync";
-
-        private string GetAppDataFolder()
-        {
-            string appName = "ObsidianSync";
-            return Environment.OSVersion.Platform switch
-            {
-                PlatformID.Win32NT => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), appName),
-                PlatformID.Unix => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), $".{appName}"),
-                _ => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), appName)
-            };
-        }
 
         private string GetClientSecretPath()
         {

@@ -20,6 +20,7 @@ namespace G.Sync.ConfigurationApp
             var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
             var appWindow = AppWindow.GetFromWindowId(windowId);
             appWindow.Resize(new SizeInt32(450, 450));
+            appWindow.SetIcon("Assets\\AppLogo.ico");
 
             vm.SetWindow(this);
         }

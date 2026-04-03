@@ -1,4 +1,5 @@
 using AppStartTest;
+using G.Sync.Common;
 using G.Sync.DataContracts;
 using G.Sync.Entities.Interfaces;
 using G.Sync.External.IO;
@@ -10,6 +11,7 @@ using G.Sync.Service.MessageFactory;
 using G.Sync.Service.MessageFactory.Strategy.Enumerators;
 using G.Sync.Utils;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using System.Net.WebSockets;
 using System.Text;
 
@@ -27,13 +29,29 @@ namespace WebApp
                 new GoogleApiNinjectModule(),
                 new ExternalIoNinjectModule(),
                 new ServiceNinjectModule(),
-                new UtilsNinjectModule()
+                new UtilsNinjectModule(),
+                new CommonNinjectModule()
             );
+
+            var stater = BusinessComponent.CreateInstance<IStarter>();
 
             builder.WebHost.ConfigureKestrel(options =>
             {
-                options.ListenLocalhost(5000);
-                options.ListenLocalhost(5001, listenOptions => listenOptions.UseHttps());
+                var isLocalHost = stater.Settings.IpAdress.Equals("localhost", StringComparison.OrdinalIgnoreCase);
+
+                var port = stater.Settings.Port;
+
+                if (isLocalHost)
+                {
+                    options.ListenLocalhost(port);
+                }
+                else
+                {
+                    var ipAddress = IPAddress.Parse(stater.Settings.IpAdress);
+                    options.Listen(ipAddress, port);
+                }
+
+                options.Listen(IPAddress.Loopback, 5001, listenOptions => listenOptions.UseHttps());
             });
 
             builder.Services.AddControllers();
@@ -42,7 +60,6 @@ namespace WebApp
 
             var app = builder.Build();
 
-            var stater = BusinessComponent.CreateInstance<IStarter>();
 
             if (app.Environment.IsDevelopment())
             {

@@ -8,14 +8,18 @@ namespace G.Sync.Entities
         public string? Folder { get; private set; }
         public string? DriveProjectName { get; private set; }
         public string? GoogleDriveFolderName { get; private set; }
+        public string IpAdress { get; private set; }
+        public int Port { get; private set; }
 
-        public SettingsEntity CreateSettings(string driveProjetoName, string googleDriveFolderName, string folder)
+        public static SettingsEntity CreateSettings(string driveProjetoName, string googleDriveFolderName, string folder, string ipAdress, int port)
         {
             return new SettingsEntity
             {
                 Folder = folder, 
                 DriveProjectName = driveProjetoName,
-                GoogleDriveFolderName = googleDriveFolderName
+                GoogleDriveFolderName = googleDriveFolderName,
+                IpAdress = ipAdress,
+                Port = port
             };
         }
 

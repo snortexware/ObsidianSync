@@ -15,7 +15,7 @@ namespace G.Sync.External.IO
 
         public FileWatcherEventsController() { }
 
-        public async void StartWatching(IEnumerable<VaultsEntity> vaults, SettingsEntity settings)
+        public async void StartWatching(IEnumerable<VaultsEntity> vaults, ISettingsEntity settings)
         {
             StopWatching();
 

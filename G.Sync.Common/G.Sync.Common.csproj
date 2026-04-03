@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Ninject" Version="3.3.6" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\G.Sync.Entities\G.Sync.Entities.csproj" />
+    <ProjectReference Include="..\Utils\G.Sync.Utils.csproj" />
   </ItemGroup>
 
 </Project>

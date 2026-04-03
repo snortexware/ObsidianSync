@@ -8,6 +8,8 @@ namespace G.Sync.Entities.Interfaces
 {
     public interface IStarter
     {
-        public Task StartAsync();
+        Task StartAsync();
+        ISettingsEntity Settings { get; }
+
     }
 }

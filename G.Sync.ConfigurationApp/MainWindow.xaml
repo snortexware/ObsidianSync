@@ -9,7 +9,7 @@
         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <StackPanel Padding="20" Spacing="12">
 
-                <TextBlock Text="IP Address" Foreground="White"/>
+                <TextBlock Text="IP address" Foreground="White"/>
                 <TextBox Text="{Binding IpAddress, Mode=TwoWay}" PlaceholderText="127.0.0.1"
                          Background="#2D2D2D" Foreground="White" BorderBrush="#444444"/>
 
@@ -17,17 +17,9 @@
                 <TextBox Text="{Binding Port, Mode=TwoWay}" PlaceholderText="8080"
                          Background="#2D2D2D" Foreground="White" BorderBrush="#444444"/>
 
-                <TextBlock Text="Google Drive Project Name" Foreground="White"/>
-                <TextBox Text="{Binding GoogleDriveProjectName, Mode=TwoWay}" PlaceholderText="MyProject"
+                <TextBlock Text="Google drive folder name"  Foreground="White"/>
+                <TextBox Text="{Binding GoogleDriveFolderName, Mode=TwoWay}" PlaceholderText="MyProject"
                          Background="#2D2D2D" Foreground="White" BorderBrush="#444444"/>
-
-                <TextBlock Text="Local Folder" Foreground="White"/>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBox Width="300" Text="{Binding LocalFolderPath, Mode=TwoWay}" IsReadOnly="True"
-                             Background="#2D2D2D" Foreground="White" BorderBrush="#444444"/>
-                    <Button Content="Browse" Command="{Binding BrowseFolderCommand}"
-                            Background="#3C3C3C" Foreground="White" BorderBrush="#555555"/>
-                </StackPanel>
 
                 <Button Content="Save" Width="100" HorizontalAlignment="Left" Margin="0,20,0,0"
                         Command="{Binding SaveConfig}" Background="#7C4DFF" Foreground="White" BorderBrush="#555555"/>
@@ -38,7 +30,7 @@
               Visibility="{Binding IsInstalling, Converter={StaticResource BooleanToVisibilityConverter}}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
                 <ProgressRing IsActive="True" Width="60" Height="60"/>
-                <TextBlock Text="Installing..." Foreground="White" FontSize="16" HorizontalAlignment="Center"/>
+                <TextBlock Text="Starting service..." Foreground="White" FontSize="16" HorizontalAlignment="Center"/>
             </StackPanel>
         </Grid>
 

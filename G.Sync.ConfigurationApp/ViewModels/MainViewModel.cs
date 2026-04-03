@@ -1,5 +1,7 @@
 ﻿using G.Sync.ConfigurationApp.Models;
+using G.Sync.Utils;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -34,7 +36,7 @@ namespace G.Sync.ConfigurationApp.ViewModels
             var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
             {
                 Title = "Service",
-                Content = "Service installed and started successfully!",
+                Content = "Service started successfully!",
                 CloseButtonText = "Ok",
                 XamlRoot = _window.Content.XamlRoot
             };
@@ -56,24 +58,16 @@ namespace G.Sync.ConfigurationApp.ViewModels
             set { _config.Port = value; OnPropertyChanged(); }
         }
 
-        public string GoogleDriveProjectName
+        public string GoogleDriveFolderName
         {
-            get => _config.GoogleDriveProjectName;
-            set { _config.GoogleDriveProjectName = value; OnPropertyChanged(); }
+            get => _config.GoogleDriveFolderName;
+            set { _config.GoogleDriveFolderName = value; OnPropertyChanged(); }
         }
 
-        public string LocalFolderPath
-        {
-            get => _config.LocalFolderPath;
-            set { _config.LocalFolderPath = value; OnPropertyChanged(); }
-        }
-
-        public ICommand BrowseFolderCommand { get; }
         public ICommand SaveConfig { get; }
 
         public MainViewModel()
         {
-            BrowseFolderCommand = new RelayCommand(OpenFolderPicker);
             SaveConfig = new RelayCommand(SaveConfiguration);
         }
 
@@ -84,23 +78,10 @@ namespace G.Sync.ConfigurationApp.ViewModels
             _window = window;
         }
 
-        private async void OpenFolderPicker()
-        {
-            var picker = new Windows.Storage.Pickers.FolderPicker();
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainAppWindow);
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
-
-            picker.FileTypeFilter.Add("*");
-
-            var folder = await picker.PickSingleFolderAsync();
-            if (folder != null)
-            {
-                LocalFolderPath = folder.Path;
-            }
-        }
-
         public async void SaveConfiguration()
         {
+            GSyncAppHelper.CreateJsonSettings(_config);
+
             var savedDialog = new Microsoft.UI.Xaml.Controls.ContentDialog
             {
                 Title = "Saved",
@@ -113,8 +94,8 @@ namespace G.Sync.ConfigurationApp.ViewModels
 
             var startDialog = new Microsoft.UI.Xaml.Controls.ContentDialog
             {
-                Title = "Service not installed",
-                Content = "Do you want to install and start the service now?",
+                Title = "Service not running",
+                Content = "Do you want to start the service now?",
                 PrimaryButtonText = "Yes",
                 CloseButtonText = "No, maybe later...",
                 XamlRoot = _window.Content.XamlRoot
@@ -129,7 +110,7 @@ namespace G.Sync.ConfigurationApp.ViewModels
             }
         }
 
-        public  event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }

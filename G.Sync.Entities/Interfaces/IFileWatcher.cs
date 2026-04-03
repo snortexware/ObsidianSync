@@ -4,7 +4,7 @@ namespace G.Sync.Entities.Interfaces
 {
     public interface IFileWatcher
     {
-        void StartWatching(IEnumerable<VaultsEntity> vaults, SettingsEntity settings);
+        void StartWatching(IEnumerable<VaultsEntity> vaults, ISettingsEntity settings);
         void StopWatching();
     }
 }

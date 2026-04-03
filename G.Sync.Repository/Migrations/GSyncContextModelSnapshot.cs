@@ -52,6 +52,13 @@ namespace G.Sync.Repository.Migrations
                     b.Property<string>("GoogleDriveFolderName")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("IpAdress")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Port")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.ToTable("Settings");

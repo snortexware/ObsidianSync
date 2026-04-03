@@ -13,9 +13,9 @@ namespace G.Sync.Repository
             using var dbContext = new GSyncContext();
             var settings = new SettingsEntity();
 
-            settings.CreateSettings("MyDriveProject", "GDriveFolder", "C:\\obsidian-sync");
-            dbContext.Settings.Add(settings);
-            dbContext.SaveChanges();
+            //settings.CreateSettings("MyDriveProject", "GDriveFolder", "C:\\obsidian-sync");
+            //dbContext.Settings.Add(settings);
+            //dbContext.SaveChanges();
         }
 
         public void UpdateFolder(string folder)
